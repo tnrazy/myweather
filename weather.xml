@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This document is intended only for use by authorized licensees of The  -->
+<!-- Weather Channel. Unauthorized use is prohibited.  Copyright 1995-2012, -->
+<!-- The Weather Channel Interactive, Inc.  All Rights Reserved.            -->
+<weather ver="2.0">
+  <head>
+    <locale>en_US</locale>
+    <form>MEDIUM</form>
+    <ut>C</ut>
+    <ud>km</ud>
+    <us>km/h</us>
+    <up>mb</up>
+    <ur>mm</ur>
+  </head>
+  <loc id="CHXX0120">
+    <dnam>Shenzhen, China</dnam>
+    <tm>12:18 AM</tm>
+    <lat>22.53</lat>
+    <lon>114.13</lon>
+    <sunr>5:51 AM</sunr>
+    <suns>7:09 PM</suns>
+    <zone>8</zone>
+  </loc>
+  <cc>
+    <lsup>7/23/12 12:00 AM Local Time</lsup>
+    <obst>Shenzhen, CHINA</obst>
+    <tmp>28</tmp>
+    <flik>31</flik>
+    <t>Fair</t>
+    <icon>33</icon>
+    <bar>
+      <r>998.0</r>
+      <d>falling</d>
+    </bar>
+    <wind>
+      <s>14</s>
+      <gust>N/A</gust>
+      <d>50</d>
+      <t>NE</t>
+    </wind>
+    <hmid>74</hmid>
+    <vis>10.0</vis>
+    <uv>
+      <i>0</i>
+      <t>Low</t>
+    </uv>
+    <dewp>23</dewp>
+    <moon>
+      <icon>3</icon>
+      <t>Waxing Crescent</t>
+    </moon>
+  </cc>
+  <dayf>
+    <lsup>7/22/12 11:14 PM Local Time</lsup>
+    <day d="0" t="Sunday" dt="Jul 22">
+      <hi>N/A</hi>
+      <low>28</low>
+      <sunr>5:51 AM</sunr>
+      <suns>7:09 PM</suns>
+      <part p="d">
+        <icon>44</icon>
+        <t>N/A</t>
+        <wind>
+          <s>N/A</s>
+          <gust>N/A</gust>
+          <d>N/A</d>
+          <t>N/A</t>
+        </wind>
+        <bt>N/A</bt>
+        <ppcp>60</ppcp>
+        <hmid>N/A</hmid>
+      </part>
+      <part p="n">
+        <icon>47</icon>
+        <t>Scattered T-Storms</t>
+        <wind>
+          <s>21</s>
+          <gust>N/A</gust>
+          <d>59</d>
+          <t>ENE</t>
+        </wind>
+        <bt>Sct T-Storms</bt>
+        <ppcp>60</ppcp>
+        <hmid>75</hmid>
+      </part>
+    </day>
+    <day d="1" t="Monday" dt="Jul 23">
+      <hi>32</hi>
+      <low>29</low>
+      <sunr>5:51 AM</sunr>
+      <suns>7:09 PM</suns>
+      <part p="d">
+        <icon>38</icon>
+        <t>Scattered T-Storms / Wind</t>
+        <wind>
+          <s>32</s>
+          <gust>N/A</gust>
+          <d>102</d>
+          <t>ESE</t>
+        </wind>
+        <bt>Sct T-Storms</bt>
+        <ppcp>60</ppcp>
+        <hmid>67</hmid>
+      </part>
+      <part p="n">
+        <icon>47</icon>
+        <t>Scattered T-Storms / Wind</t>
+        <wind>
+          <s>42</s>
+          <gust>N/A</gust>
+          <d>107</d>
+          <t>ESE</t>
+        </wind>
+        <bt>Sct T-Storms</bt>
+        <ppcp>60</ppcp>
+        <hmid>75</hmid>
+      </part>
+    </day>
+    <day d="2" t="Tuesday" dt="Jul 24">
+      <hi>31</hi>
+      <low>28</low>
+      <sunr>5:52 AM</sunr>
+      <suns>7:08 PM</suns>
+      <part p="d">
+        <icon>38</icon>
+        <t>Scattered T-Storms / Wind</t>
+        <wind>
+          <s>31</s>
+          <gust>N/A</gust>
+          <d>139</d>
+          <t>SE</t>
+        </wind>
+        <bt>Sct T-Storms</bt>
+        <ppcp>60</ppcp>
+        <hmid>71</hmid>
+      </part>
+      <part p="n">
+        <icon>47</icon>
+        <t>Scattered T-Storms</t>
+        <wind>
+          <s>21</s>
+          <gust>N/A</gust>
+          <d>130</d>
+          <t>SE</t>
+        </wind>
+        <bt>Sct T-Storms</bt>
+        <ppcp>60</ppcp>
+        <hmid>74</hmid>
+      </part>
+    </day>
+    <day d="3" t="Wednesday" dt="Jul 25">
+      <hi>31</hi>
+      <low>28</low>
+      <sunr>5:52 AM</sunr>
+      <suns>7:08 PM</suns>
+      <part p="d">
+        <icon>38</icon>
+        <t>Scattered T-Storms</t>
+        <wind>
+          <s>24</s>
+          <gust>N/A</gust>
+          <d>157</d>
+          <t>SSE</t>
+        </wind>
+        <bt>Sct T-Storms</bt>
+        <ppcp>60</ppcp>
+        <hmid>70</hmid>
+      </part>
+      <part p="n">
+        <icon>47</icon>
+        <t>Scattered T-Storms</t>
+        <wind>
+          <s>14</s>
+          <gust>N/A</gust>
+          <d>154</d>
+          <t>SSE</t>
+        </wind>
+        <bt>Sct T-Storms</bt>
+        <ppcp>60</ppcp>
+        <hmid>73</hmid>
+      </part>
+    </day>
+    <day d="4" t="Thursday" dt="Jul 26">
+      <hi>32</hi>
+      <low>28</low>
+      <sunr>5:53 AM</sunr>
+      <suns>7:07 PM</suns>
+      <part p="d">
+        <icon>38</icon>
+        <t>Scattered T-Storms</t>
+        <wind>
+          <s>18</s>
+          <gust>N/A</gust>
+          <d>162</d>
+          <t>SSE</t>
+        </wind>
+        <bt>Sct T-Storms</bt>
+        <ppcp>60</ppcp>
+        <hmid>69</hmid>
+      </part>
+      <part p="n">
+        <icon>47</icon>
+        <t>Scattered T-Storms</t>
+        <wind>
+          <s>11</s>
+          <gust>N/A</gust>
+          <d>139</d>
+          <t>SE</t>
+        </wind>
+        <bt>Sct T-Storms</bt>
+        <ppcp>60</ppcp>
+        <hmid>73</hmid>
+      </part>
+    </day>
+    <day d="5" t="Friday" dt="Jul 27">
+      <hi>32</hi>
+      <low>28</low>
+      <sunr>5:53 AM</sunr>
+      <suns>7:07 PM</suns>
+      <part p="d">
+        <icon>38</icon>
+        <t>Scattered T-Storms</t>
+        <wind>
+          <s>14</s>
+          <gust>N/A</gust>
+          <d>140</d>
+          <t>SE</t>
+        </wind>
+        <bt>Sct T-Storms</bt>
+        <ppcp>60</ppcp>
+        <hmid>68</hmid>
+      </part>
+      <part p="n">
+        <icon>47</icon>
+        <t>Scattered T-Storms</t>
+        <wind>
+          <s>10</s>
+          <gust>N/A</gust>
+          <d>127</d>
+          <t>SE</t>
+        </wind>
+        <bt>Sct T-Storms</bt>
+        <ppcp>60</ppcp>
+        <hmid>72</hmid>
+      </part>
+    </day>
+  </dayf>
+</weather>
+
