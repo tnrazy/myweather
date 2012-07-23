@@ -14,7 +14,7 @@
   </head>
   <loc id="CHXX0120">
     <dnam>Shenzhen, China</dnam>
-    <tm>12:18 AM</tm>
+    <tm>6:00 PM</tm>
     <lat>22.53</lat>
     <lon>114.13</lon>
     <sunr>5:51 AM</sunr>
@@ -22,39 +22,39 @@
     <zone>8</zone>
   </loc>
   <cc>
-    <lsup>7/23/12 12:00 AM Local Time</lsup>
+    <lsup>7/23/12 5:00 PM Local Time</lsup>
     <obst>Shenzhen, CHINA</obst>
-    <tmp>28</tmp>
+    <tmp>27</tmp>
     <flik>31</flik>
-    <t>Fair</t>
-    <icon>33</icon>
+    <t>Light Rain Shower</t>
+    <icon>11</icon>
     <bar>
-      <r>998.0</r>
+      <r>990.9</r>
       <d>falling</d>
     </bar>
     <wind>
-      <s>14</s>
-      <gust>N/A</gust>
-      <d>50</d>
-      <t>NE</t>
+      <s>32</s>
+      <gust>50</gust>
+      <d>20</d>
+      <t>NNE</t>
     </wind>
-    <hmid>74</hmid>
+    <hmid>84</hmid>
     <vis>10.0</vis>
     <uv>
-      <i>0</i>
+      <i>1</i>
       <t>Low</t>
     </uv>
-    <dewp>23</dewp>
+    <dewp>24</dewp>
     <moon>
-      <icon>3</icon>
+      <icon>4</icon>
       <t>Waxing Crescent</t>
     </moon>
   </cc>
   <dayf>
-    <lsup>7/22/12 11:14 PM Local Time</lsup>
-    <day d="0" t="Sunday" dt="Jul 22">
+    <lsup>7/23/12 3:33 PM Local Time</lsup>
+    <day d="0" t="Monday" dt="Jul 23">
       <hi>N/A</hi>
-      <low>28</low>
+      <low>29</low>
       <sunr>5:51 AM</sunr>
       <suns>7:09 PM</suns>
       <part p="d">
@@ -72,51 +72,19 @@
       </part>
       <part p="n">
         <icon>47</icon>
-        <t>Scattered T-Storms</t>
+        <t>Scattered T-Storms / Wind</t>
         <wind>
-          <s>21</s>
+          <s>72</s>
           <gust>N/A</gust>
-          <d>59</d>
-          <t>ENE</t>
+          <d>143</d>
+          <t>SE</t>
         </wind>
         <bt>Sct T-Storms</bt>
         <ppcp>60</ppcp>
         <hmid>75</hmid>
       </part>
     </day>
-    <day d="1" t="Monday" dt="Jul 23">
-      <hi>32</hi>
-      <low>29</low>
-      <sunr>5:51 AM</sunr>
-      <suns>7:09 PM</suns>
-      <part p="d">
-        <icon>38</icon>
-        <t>Scattered T-Storms / Wind</t>
-        <wind>
-          <s>32</s>
-          <gust>N/A</gust>
-          <d>102</d>
-          <t>ESE</t>
-        </wind>
-        <bt>Sct T-Storms</bt>
-        <ppcp>60</ppcp>
-        <hmid>67</hmid>
-      </part>
-      <part p="n">
-        <icon>47</icon>
-        <t>Scattered T-Storms / Wind</t>
-        <wind>
-          <s>42</s>
-          <gust>N/A</gust>
-          <d>107</d>
-          <t>ESE</t>
-        </wind>
-        <bt>Sct T-Storms</bt>
-        <ppcp>60</ppcp>
-        <hmid>75</hmid>
-      </part>
-    </day>
-    <day d="2" t="Tuesday" dt="Jul 24">
+    <day d="1" t="Tuesday" dt="Jul 24">
       <hi>31</hi>
       <low>28</low>
       <sunr>5:52 AM</sunr>
@@ -125,9 +93,9 @@
         <icon>38</icon>
         <t>Scattered T-Storms / Wind</t>
         <wind>
-          <s>31</s>
+          <s>55</s>
           <gust>N/A</gust>
-          <d>139</d>
+          <d>138</d>
           <t>SE</t>
         </wind>
         <bt>Sct T-Storms</bt>
@@ -136,11 +104,11 @@
       </part>
       <part p="n">
         <icon>47</icon>
-        <t>Scattered T-Storms</t>
+        <t>Scattered T-Storms / Wind</t>
         <wind>
-          <s>21</s>
+          <s>34</s>
           <gust>N/A</gust>
-          <d>130</d>
+          <d>141</d>
           <t>SE</t>
         </wind>
         <bt>Sct T-Storms</bt>
@@ -148,8 +116,8 @@
         <hmid>74</hmid>
       </part>
     </day>
-    <day d="3" t="Wednesday" dt="Jul 25">
-      <hi>31</hi>
+    <day d="2" t="Wednesday" dt="Jul 25">
+      <hi>32</hi>
       <low>28</low>
       <sunr>5:52 AM</sunr>
       <suns>7:08 PM</suns>
@@ -157,30 +125,62 @@
         <icon>38</icon>
         <t>Scattered T-Storms</t>
         <wind>
-          <s>24</s>
+          <s>21</s>
           <gust>N/A</gust>
           <d>157</d>
           <t>SSE</t>
         </wind>
         <bt>Sct T-Storms</bt>
         <ppcp>60</ppcp>
-        <hmid>70</hmid>
+        <hmid>68</hmid>
       </part>
       <part p="n">
         <icon>47</icon>
         <t>Scattered T-Storms</t>
         <wind>
-          <s>14</s>
+          <s>13</s>
           <gust>N/A</gust>
-          <d>154</d>
-          <t>SSE</t>
+          <d>117</d>
+          <t>ESE</t>
+        </wind>
+        <bt>Sct T-Storms</bt>
+        <ppcp>60</ppcp>
+        <hmid>75</hmid>
+      </part>
+    </day>
+    <day d="3" t="Thursday" dt="Jul 26">
+      <hi>32</hi>
+      <low>28</low>
+      <sunr>5:53 AM</sunr>
+      <suns>7:07 PM</suns>
+      <part p="d">
+        <icon>38</icon>
+        <t>Scattered T-Storms</t>
+        <wind>
+          <s>16</s>
+          <gust>N/A</gust>
+          <d>141</d>
+          <t>SE</t>
+        </wind>
+        <bt>Sct T-Storms</bt>
+        <ppcp>60</ppcp>
+        <hmid>69</hmid>
+      </part>
+      <part p="n">
+        <icon>47</icon>
+        <t>Scattered T-Storms</t>
+        <wind>
+          <s>10</s>
+          <gust>N/A</gust>
+          <d>129</d>
+          <t>SE</t>
         </wind>
         <bt>Sct T-Storms</bt>
         <ppcp>60</ppcp>
         <hmid>73</hmid>
       </part>
     </day>
-    <day d="4" t="Thursday" dt="Jul 26">
+    <day d="4" t="Friday" dt="Jul 27">
       <hi>32</hi>
       <low>28</low>
       <sunr>5:53 AM</sunr>
@@ -191,53 +191,53 @@
         <wind>
           <s>18</s>
           <gust>N/A</gust>
-          <d>162</d>
-          <t>SSE</t>
+          <d>143</d>
+          <t>SE</t>
         </wind>
         <bt>Sct T-Storms</bt>
         <ppcp>60</ppcp>
-        <hmid>69</hmid>
+        <hmid>67</hmid>
       </part>
       <part p="n">
         <icon>47</icon>
         <t>Scattered T-Storms</t>
         <wind>
-          <s>11</s>
+          <s>13</s>
           <gust>N/A</gust>
-          <d>139</d>
+          <d>125</d>
           <t>SE</t>
         </wind>
         <bt>Sct T-Storms</bt>
         <ppcp>60</ppcp>
-        <hmid>73</hmid>
+        <hmid>72</hmid>
       </part>
     </day>
-    <day d="5" t="Friday" dt="Jul 27">
-      <hi>32</hi>
+    <day d="5" t="Saturday" dt="Jul 28">
+      <hi>33</hi>
       <low>28</low>
-      <sunr>5:53 AM</sunr>
-      <suns>7:07 PM</suns>
+      <sunr>5:54 AM</sunr>
+      <suns>7:06 PM</suns>
       <part p="d">
         <icon>38</icon>
         <t>Scattered T-Storms</t>
         <wind>
-          <s>14</s>
+          <s>19</s>
           <gust>N/A</gust>
-          <d>140</d>
+          <d>135</d>
           <t>SE</t>
         </wind>
         <bt>Sct T-Storms</bt>
         <ppcp>60</ppcp>
-        <hmid>68</hmid>
+        <hmid>66</hmid>
       </part>
       <part p="n">
         <icon>47</icon>
         <t>Scattered T-Storms</t>
         <wind>
-          <s>10</s>
+          <s>13</s>
           <gust>N/A</gust>
-          <d>127</d>
-          <t>SE</t>
+          <d>111</d>
+          <t>ESE</t>
         </wind>
         <bt>Sct T-Storms</bt>
         <ppcp>60</ppcp>

@@ -11,7 +11,7 @@
 
 #include "http.h"
 #include "log.h"
-#include "utils.h"
+#include "http_utils.h"
 
 #include <string.h>
 #include <stdlib.h>

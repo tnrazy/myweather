@@ -11,7 +11,7 @@
 
 #include "http.h"
 #include "log.h"
-#include "utils.h"
+#include "http_utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,27 +48,32 @@ char *http_fetch(int connfd, struct http_res *res, char *filename)
 		return NULL;
 	}
 
-	_DEBUG("filename: %s", filename);
+	char *fullname = filename;
+
+	if(res->type == NULL || res->type->ext == NULL)
+	{
+		fullname = filename;
+	}
 
 	//if(res->minor < 1)
-	if(http_do_fetch(connfd, filename, res) != 0)
+	if(http_do_fetch(connfd, fullname, res) != 0)
 	{
 		_ERROR("Fetch data error.");
 
 
-		if(unlink(filename) == 0)
+		if(unlink(fullname) == 0)
 		{
-			_INFO("Remove the file: %s", filename);
+			_INFO("Remove the file: %s", fullname);
 		}
 		else
 		{
-			_WARN("Remove file: %s, error.", filename);
+			_WARN("Remove file: %s, error.", fullname);
 		}
 
 		return NULL;
 	}
 
-	return filename;
+	return fullname;
 }
 
 static int http_do_fetch(int connfd, char *filename, struct http_res *res)

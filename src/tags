@@ -5,25 +5,33 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
 AT	log.h	17;"	d
-BEGIN_WITH	utils.h	36;"	d
+BEGIN_WITH	http_utils.h	36;"	d
+CFGHOMENAME	config.h	13;"	d
+CFG_MAP	config.h	/^	CFG_MAP(XX)$/;"	e	enum:cfg_keys
+CFG_MAP	config.h	15;"	d
+CFG_UNKNOW	config.h	/^    	CFG_UNKNOW$/;"	e	enum:cfg_keys
 COLOR_CODE	log.h	35;"	d
 COLOR_END	log.h	37;"	d
 COLOR_MAP	log.h	/^COLOR_MAP(XX)$/;"	e	enum:color_types
 COLOR_MAP	log.h	19;"	d
 COLOR_START	log.h	36;"	d
+CONFIG_H	config.h	11;"	d
 CONTEXT_TYPE_MAP	http.h	/^CONTEXT_TYPE_MAP(XX)$/;"	e	enum:http_cxt_types
 CONTEXT_TYPE_MAP	http.h	44;"	d
 DCRLF	http.h	25;"	d
 DEF_PORT	http.h	15;"	d
 DEF_TIMEOUT	http.h	16;"	d
 GB	http.h	21;"	d
-HAS_FLAG	utils.h	35;"	d
+HAS_FLAG	http_utils.h	35;"	d
 HTTP_COOKIE	http.h	/^    HTTP_NOCOOKIE, HTTP_COOKIE$/;"	e	enum:http_flags
 HTTP_CXT_UNKNOW	http.h	/^HTTP_CXT_UNKNOW$/;"	e	enum:http_cxt_types
 HTTP_H	http.h	11;"	d
 HTTP_HDR_SIZE	http.h	24;"	d
 HTTP_MTD_UNKNOW	http.h	/^HTTP_MTD_UNKNOW$/;"	e	enum:http_mtd_types
 HTTP_NOCOOKIE	http.h	/^    HTTP_NOCOOKIE, HTTP_COOKIE$/;"	e	enum:http_flags
+HTTP_UTILS_H	http_utils.h	11;"	d
+INIT_CHK	config.c	48;"	d	file:
+INIT_OK	config.c	49;"	d	file:
 KB	http.h	19;"	d
 LOG_H	log.h	11;"	d
 MB	http.h	20;"	d
@@ -37,15 +45,18 @@ PERM	http.h	17;"	d
 STR	log.h	16;"	d
 STR2	log.h	15;"	d
 TIMEOUT	http.c	18;"	d	file:
-TIMEOUT_ALL	utils.h	/^    TIMEOUT_ALL         = (1 << 3) - 1,$/;"	e	enum:time_flag
-TIMEOUT_ERROR	utils.h	/^    TIMEOUT_ERROR       = 1 << 2,$/;"	e	enum:time_flag
-TIMEOUT_READ	utils.h	/^    TIMEOUT_READ        = 1 << 0,$/;"	e	enum:time_flag
-TIMEOUT_UNKNOW	utils.h	/^    TIMEOUT_UNKNOW$/;"	e	enum:time_flag
-TIMEOUT_WRITE	utils.h	/^    TIMEOUT_WRITE       = 1 << 1,$/;"	e	enum:time_flag
+TIMEOUT_ALL	http_utils.h	/^    TIMEOUT_ALL         = (1 << 3) - 1,$/;"	e	enum:time_flag
+TIMEOUT_ERROR	http_utils.h	/^    TIMEOUT_ERROR       = 1 << 2,$/;"	e	enum:time_flag
+TIMEOUT_READ	http_utils.h	/^    TIMEOUT_READ        = 1 << 0,$/;"	e	enum:time_flag
+TIMEOUT_UNKNOW	http_utils.h	/^    TIMEOUT_UNKNOW$/;"	e	enum:time_flag
+TIMEOUT_WRITE	http_utils.h	/^    TIMEOUT_WRITE       = 1 << 1,$/;"	e	enum:time_flag
 UAGENT	http.h	27;"	d
-UTILS_H	utils.h	11;"	d
 WEATHER_URL	weather.c	22;"	d	file:
 WEATHER_XML	weather.c	21;"	d	file:
+XX	config.c	31;"	d	file:
+XX	config.c	33;"	d	file:
+XX	config.h	25;"	d
+XX	config.h	27;"	d
 XX	http.h	124;"	d
 XX	http.h	126;"	d
 XX	http.h	134;"	d
@@ -71,29 +82,63 @@ _DEBUG	log.h	77;"	d
 _ERROR	log.h	72;"	d
 _INFO	log.h	70;"	d
 _WARN	log.h	71;"	d
+___DEBUG	config.c	10;"	d	file:
+___DEBUG	http_compile.c	10;"	d	file:
+___DEBUG	http_connect.c	10;"	d	file:
+___DEBUG	http_exec.c	10;"	d	file:
 ___DEBUG	http_fetch.c	10;"	d	file:
 ___MSG	log.h	41;"	d
 ___MSG	log.h	43;"	d
 ___TEMPLATE_INIT	http_compile.c	11;"	d	file:
 addr	http.h	/^    struct http_addr *addr;$/;"	m	struct:http_req	typeref:struct:http_req::http_addr	access:public
-clean_name	utils.c	/^char *clean_name(char *name)$/;"	f	signature:(char *name)
-clean_name	utils.h	/^char *clean_name(char *name);$/;"	p	signature:(char *name)
-clean_reg	utils.c	/^char *clean_reg(char *str)$/;"	f	signature:(char *str)
-clean_reg	utils.h	/^char *clean_reg(char *str);$/;"	p	signature:(char *str)
+cfg	config.c	/^struct cfg$/;"	s	file:
+cfg::cfgkey	config.c	/^        enum cfg_keys cfgkey;$/;"	m	struct:cfg	typeref:enum:cfg::cfg_keys	file:	access:public
+cfg::name	config.c	/^        char *name;$/;"	m	struct:cfg	file:	access:public
+cfg::value	config.c	/^        char *value;$/;"	m	struct:cfg	file:	access:public
+cfg_check	config.c	/^static void cfg_check()$/;"	f	file:
+cfg_check	config.c	/^static void cfg_check();$/;"	p	file:
+cfg_filename	config.c	/^static char *cfg_filename;$/;"	v	file:
+cfg_get	config.c	/^static char *cfg_get(enum cfg_keys cfg_key)$/;"	f	file:	signature:(enum cfg_keys cfg_key)
+cfg_get	config.c	/^static char *cfg_get(enum cfg_keys cfg_key);$/;"	p	file:	signature:(enum cfg_keys cfg_key)
+cfg_get_debug	config.c	/^int cfg_get_debug()$/;"	f
+cfg_get_logfile	config.c	/^char *cfg_get_logfile()$/;"	f
+cfg_get_pos_lock	config.c	/^unsigned int cfg_get_pos_lock()$/;"	f
+cfg_get_pos_lock	config.h	/^unsigned int cfg_get_pos_lock();$/;"	p	signature:()
+cfg_get_x	config.c	/^unsigned int cfg_get_x()$/;"	f
+cfg_get_x	config.h	/^unsigned int cfg_get_x();$/;"	p	signature:()
+cfg_get_y	config.c	/^unsigned int cfg_get_y()$/;"	f
+cfg_get_y	config.h	/^unsigned int cfg_get_y();$/;"	p	signature:()
+cfg_init	config.c	/^static int cfg_init;$/;"	v	file:
+cfg_keys	config.h	/^enum cfg_keys$/;"	g
+cfg_load	config.c	/^void cfg_load(char *filename)$/;"	f	signature:(char *filename)
+cfg_load	config.h	/^void cfg_load();$/;"	p	signature:()
+cfg_lock	config.c	/^static pthread_mutex_t cfg_lock = PTHREAD_MUTEX_INITIALIZER;$/;"	v	file:
+cfg_refresh	config.c	/^void cfg_refresh()$/;"	f
+cfg_refresh	config.h	/^void cfg_refresh();$/;"	p	signature:()
+cfg_resolver	config.c	/^static FILE *cfg_resolver()$/;"	f	file:
+cfg_resolver	config.c	/^static FILE *cfg_resolver();$/;"	p	file:
+cfg_set	config.c	/^static void cfg_set(enum cfg_keys cfg_key, const char *value)$/;"	f	file:	signature:(enum cfg_keys cfg_key, const char *value)
+cfg_set	config.c	/^static void cfg_set(enum cfg_keys, const char *value);$/;"	p	file:	signature:(enum cfg_keys, const char *value)
+cfg_set_debug	config.c	/^void cfg_set_debug()$/;"	f
+cfg_set_postion	config.c	/^void cfg_set_postion(const char *xy)$/;"	f	signature:(const char *xy)
+cfg_set_postion	config.h	/^void cfg_set_postion(const char *xy);$/;"	p	signature:(const char *xy)
+cfg_set_postion_lock	config.c	/^void cfg_set_postion_lock()$/;"	f
+cfg_set_postion_lock	config.h	/^void cfg_set_postion_lock();$/;"	p	signature:()
+cfgkey	config.c	/^        enum cfg_keys cfgkey;$/;"	m	struct:cfg	typeref:enum:cfg::cfg_keys	file:	access:public
+cfgs	config.c	/^static struct cfg cfgs[] = $/;"	v	typeref:struct:cfg	file:
 color_types	log.h	/^enum color_types$/;"	g
 cookie	http.h	/^    char *cookie;$/;"	m	struct:http_res	access:public
 cxt_types	http.h	/^struct file_type cxt_types[] =$/;"	v	typeref:struct:file_type
+debug	config.c	/^static int debug;$/;"	v	file:
 die	log.c	/^void die(const char *format, ...)$/;"	f	signature:(const char *format, ...)
 die	log.h	/^void die(const char *format, ...);$/;"	p	signature:(const char *format, ...)
-die	weather.c	/^static void die(const char *format, ...)$/;"	f	file:	signature:(const char *format, ...)
-die	weather.c	/^static void die(const char *format, ...);$/;"	p	file:	signature:(const char *format, ...)
 ext	http.h	/^    char *ext;$/;"	m	struct:file_type	access:public
 file_type	http.h	/^struct file_type$/;"	s
 file_type::ext	http.h	/^    char *ext;$/;"	m	struct:file_type	access:public
 file_type::idx	http.h	/^    enum http_cxt_types idx;$/;"	m	struct:file_type	typeref:enum:file_type::http_cxt_types	access:public
 file_type::tname	http.h	/^    char *tname;$/;"	m	struct:file_type	access:public
-from_hex	utils.c	/^static char from_hex(char ch)$/;"	f	file:	signature:(char ch)
-from_hex	utils.c	/^static char from_hex(char ch);$/;"	p	file:	signature:(char ch)
+from_hex	http_utils.c	/^static char from_hex(char ch)$/;"	f	file:	signature:(char ch)
+from_hex	http_utils.c	/^static char from_hex(char ch);$/;"	p	file:	signature:(char ch)
 hdr	http.h	/^    char *hdr;$/;"	m	struct:http_req	access:public
 hdr_gen	http.h	/^typedef char *(*hdr_gen)(char *host, char *uri, enum http_cxt_types type, char *data);$/;"	t
 hight	weather.c	/^	int hight;$/;"	m	struct:weather	file:	access:public
@@ -112,7 +157,7 @@ http_connect	http_connect.c	/^int http_connect(struct http_addr *addr, unsigned 
 http_cxt_type	http_exec.c	/^static struct file_type *http_cxt_type(char *tname)$/;"	f	file:	signature:(char *tname)
 http_cxt_type	http_exec.c	/^static struct file_type *http_cxt_type(char *tname);$/;"	p	file:	signature:(char *tname)
 http_cxt_types	http.h	/^enum http_cxt_types$/;"	g
-http_do_fetch	http_fetch.c	/^static int http_do_fetch(int connfd, char *fullname, struct http_res *res)$/;"	f	file:	signature:(int connfd, char *fullname, struct http_res *res)
+http_do_fetch	http_fetch.c	/^static int http_do_fetch(int connfd, char *filename, struct http_res *res)$/;"	f	file:	signature:(int connfd, char *filename, struct http_res *res)
 http_do_fetch	http_fetch.c	/^static int http_do_fetch(int connfd, char *fullname, struct http_res *res);$/;"	p	file:	signature:(int connfd, char *fullname, struct http_res *res)
 http_exec	http.h	/^struct http_res *http_exec(int connfd, struct http_req *req, unsigned int timeout);$/;"	p	signature:(int connfd, struct http_req *req, unsigned int timeout)
 http_exec	http_exec.c	/^struct http_res *http_exec(int connfd, struct http_req *req, unsigned int timeout)$/;"	f	signature:(int connfd, struct http_req *req, unsigned int timeout)
@@ -162,44 +207,39 @@ if_null_return_null	log.h	86;"	d
 length	http.h	/^    unsigned long length;$/;"	m	struct:http_res	access:public
 low	weather.c	/^	int low;$/;"	m	struct:weather	file:	access:public
 main	weather.c	/^int main(int argc, const char *argv[])$/;"	f	signature:(int argc, const char *argv[])
-member_size	weather.c	19;"	d	file:
 minor	http.h	/^    unsigned int minor;$/;"	m	struct:http_res	access:public
 msg_color	log.c	/^int msg_color[] = $/;"	v
 msg_out	log.c	/^int msg_out[] =$/;"	v
 msg_prefix	log.c	/^char *msg_prefix[] =$/;"	v
 msg_types	log.h	/^enum msg_types$/;"	g
+name	config.c	/^        char *name;$/;"	m	struct:cfg	file:	access:public
 name	weather.c	/^	char name[16];$/;"	m	struct:weather	file:	access:public
-path_real	utils.c	/^char *path_real(const char *path, char *filename)$/;"	f	signature:(const char *path, char *filename)
-path_real	utils.h	/^char *path_real(const char *path, char *filename);$/;"	p	signature:(const char *path, char *filename)
-path_wildcard	utils.c	/^char *path_wildcard(const char *str)$/;"	f	signature:(const char *str)
-path_wildcard	utils.h	/^char *path_wildcard(const char *str);$/;"	p	signature:(const char *str)
 port	http.h	/^    uint16_t port;$/;"	m	struct:http_addr	access:public
 prmsg	log.c	/^void prmsg(enum msg_types msg_type, const char *format, ...)$/;"	f	signature:(enum msg_types msg_type, const char *format, ...)
 prmsg	log.h	/^void prmsg(enum msg_types msg_type, const char *format, ...);$/;"	p	signature:(enum msg_types msg_type, const char *format, ...)
 req_hdr	http.h	/^char *req_hdr[] = $/;"	v
 req_hdr_ext	http.h	/^char *req_hdr_ext[] =$/;"	v
 status_code	http.h	/^    unsigned int status_code;$/;"	m	struct:http_res	access:public
-strstr_igcase	utils.c	/^char *strstr_igcase(const char *str, const char *need, int contain_need)$/;"	f	signature:(const char *str, const char *need, int contain_need)
-strstr_igcase	utils.h	/^char *strstr_igcase(const char *str, const char *need, int contain_need);$/;"	p	signature:(const char *str, const char *need, int contain_need)
-strstr_ln	utils.c	/^char *strstr_ln(char *src, char *buf, size_t size, const char *token)$/;"	f	signature:(char *src, char *buf, size_t size, const char *token)
-strstr_ln	utils.h	/^char *strstr_ln(char *src, char *buf, size_t size, const char *token);$/;"	p	signature:(char *src, char *buf, size_t size, const char *token)
+strstr_igcase	http_utils.c	/^char *strstr_igcase(const char *str, const char *need, int contain_need)$/;"	f	signature:(const char *str, const char *need, int contain_need)
+strstr_igcase	http_utils.h	/^char *strstr_igcase(const char *str, const char *need, int contain_need);$/;"	p	signature:(const char *str, const char *need, int contain_need)
+strstr_ln	http_utils.c	/^char *strstr_ln(char *src, char *buf, size_t size, const char *token)$/;"	f	signature:(char *src, char *buf, size_t size, const char *token)
+strstr_ln	http_utils.h	/^char *strstr_ln(char *src, char *buf, size_t size, const char *token);$/;"	p	signature:(char *src, char *buf, size_t size, const char *token)
 tail	http.h	/^    char *tail;$/;"	m	struct:http_res	access:public
 tail_len	http.h	/^    unsigned long tail_len;$/;"	m	struct:http_res	access:public
-time_flag	utils.h	/^enum time_flag$/;"	g
-timeout_end	utils.h	78;"	d
-timeout_start	utils.h	39;"	d
+time_flag	http_utils.h	/^enum time_flag$/;"	g
+timeout_end	http_utils.h	78;"	d
+timeout_start	http_utils.h	39;"	d
 tname	http.h	/^    char *tname;$/;"	m	struct:file_type	access:public
-to_hex	utils.c	/^static char to_hex(char ch)$/;"	f	file:	signature:(char ch)
-to_hex	utils.c	/^static char to_hex(char ch);$/;"	p	file:	signature:(char ch)
-trim	utils.c	/^char *trim(char *str)$/;"	f	signature:(char *str)
-trim	utils.h	/^char *trim(char *str);$/;"	p	signature:(char *str)
+to_hex	http_utils.c	/^static char to_hex(char ch)$/;"	f	file:	signature:(char ch)
+to_hex	http_utils.c	/^static char to_hex(char ch);$/;"	p	file:	signature:(char ch)
 type	http.h	/^    struct file_type *type;$/;"	m	struct:http_res	typeref:struct:http_res::file_type	access:public
 uri	http.h	/^    char *uri;$/;"	m	struct:http_addr	access:public
 url	http.h	/^    char *url;$/;"	m	struct:http_addr	access:public
-url_decode	utils.c	/^char *url_decode(const char *str)$/;"	f	signature:(const char *str)
-url_decode	utils.h	/^char *url_decode(const char *str);$/;"	p	signature:(const char *str)
-url_encode	utils.c	/^char *url_encode(const char *str)$/;"	f	signature:(const char *str)
-url_encode	utils.h	/^char *url_encode(const char *str);$/;"	p	signature:(const char *str)
+url_decode	http_utils.c	/^char *url_decode(const char *str)$/;"	f	signature:(const char *str)
+url_decode	http_utils.h	/^char *url_decode(const char *str);$/;"	p	signature:(const char *str)
+url_encode	http_utils.c	/^char *url_encode(const char *str)$/;"	f	signature:(const char *str)
+url_encode	http_utils.h	/^char *url_encode(const char *str);$/;"	p	signature:(const char *str)
+value	config.c	/^        char *value;$/;"	m	struct:cfg	file:	access:public
 weather	weather.c	/^struct weather$/;"	s	file:
 weather::hight	weather.c	/^	int hight;$/;"	m	struct:weather	file:	access:public
 weather::icon	weather.c	/^	char icon[16];$/;"	m	struct:weather	file:	access:public
@@ -210,3 +250,7 @@ weather_query	weather.c	/^static struct weather *weather_query(struct weather *w
 weather_query_node	weather.c	/^static xmlNode *weather_query_node(xmlNode *root, char *node_name, char *attr_name, unsigned int day)$/;"	f	file:	signature:(xmlNode *root, char *node_name, char *attr_name, unsigned int day)
 weather_query_node	weather.c	/^static xmlNode *weather_query_node(xmlNode *root, char *node_name, char *attr_name, unsigned int day);$/;"	p	file:	signature:(xmlNode *root, char *node_name, char *attr_name, unsigned int day)
 weather_refresh	weather.c	/^static void weather_refresh()$/;"	f	file:
+weather_refresh	weather.c	/^static void weather_refresh();$/;"	p	file:
+weather_ui	weather.c	/^static void weather_ui();$/;"	p	file:
+weather_ui	weather.c	/^static weather_ui()$/;"	f	file:
+window	weather.c	/^static GtkWidget *window;$/;"	v	file:

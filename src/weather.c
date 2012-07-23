@@ -15,9 +15,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <gtk/gtk.h>
 #include <libxml/parser.h>
-
-#define member_size(type, member) sizeof(((type *)0)->member)
 
 #define WEATHER_XML 					"/tmp/weather.xml"
 #define WEATHER_URL 					"http://xml.weather.com/weather/local/CHXX0120?cc=*&unit=m&dayf=6"
@@ -36,6 +35,11 @@ static void weather_refresh();
 static xmlNode *weather_query_node(xmlNode *root, char *node_name, char *attr_name, unsigned int day);
 
 static struct weather *weather_query(struct weather *w, unsigned int day, xmlDoc *doc);
+
+static void weather_ui();
+
+/* main window */
+static GtkWidget *window;
 
 int main(int argc, const char *argv[])
 {
@@ -57,13 +61,48 @@ int main(int argc, const char *argv[])
 	weather_query(&day2, 2, doc);
 	weather_query(&day3, 3, doc);
 
-	fprintf(stderr, "%s\n", today.name);
-	fprintf(stderr, "%s\n", day1.name);
-	fprintf(stderr, "%s\n", day2.name);
-	fprintf(stderr, "%s\n", day3.name);
-
 	xmlFreeDoc(doc);
 	return EXIT_SUCCESS;
+}
+
+/* 
+ * load ui
+ * */
+static weather_ui()
+{
+	if(window != NULL)
+	{
+		return;
+	}
+
+	/* fixed container */
+	GtkWidget *fixed;
+
+	gtk_init(NULL, NULL);
+
+	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+	gtk_widget_set_app_paintable(window, TRUE);
+
+	/* remove the window decorate */
+	gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
+
+	/* set window size */
+	gtk_window_set_default_size(GTK_WINDOW(window), 120, 480);
+	
+	/* remove taskbar */
+	gtk_window_set_skip_taskbar_hint(GTK_WINDOW(window), TRUE);
+
+	gtk_window_set_skip_pager_hint(GTK_WINDOW(window), TRUE);
+
+	gtk_window_set_keep_below(GTK_WINDOW(window), TRUE);
+
+	/* set window position */
+	gtk_widget_set_uposition(window, 0, 0);
+
+	fixed = gtk_fixed_new();
+
+	gtk_container_add(GTK_WINDOW(window), fixed);
 }
 
 static xmlNode *weather_query_node(xmlNode *root, char *node_name, char *attr_name, unsigned int day)
