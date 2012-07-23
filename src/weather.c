@@ -9,6 +9,7 @@
 
 #include "http.h"
 #include "log.h"
+#include "config.h"
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -19,7 +20,7 @@
 #include <libxml/parser.h>
 
 #define WEATHER_XML 					"/tmp/weather.xml"
-#define WEATHER_URL 					"http://xml.weather.com/weather/local/CHXX0120?cc=*&unit=m&dayf=6"
+#define WEATHER_API 					"http://xml.weather.com/weather/local/%s?cc=*&unit=m&dayf=6"
 
 struct weather
 {
@@ -27,10 +28,9 @@ struct weather
 	char icon[16];
 
 	int low;
-	int hight;
 };
 
-static void weather_refresh();
+static xmlDoc *weather_refresh();
 
 static xmlNode *weather_query_node(xmlNode *root, char *node_name, char *attr_name, unsigned int day);
 
@@ -38,45 +38,29 @@ static struct weather *weather_query(struct weather *w, unsigned int day, xmlDoc
 
 static void weather_ui();
 
-/* main window */
-static GtkWidget *window;
+/* weather days */
+static GtkWidget **days;
 
-int main(int argc, const char *argv[])
+/* weather today */
+
+int main(int argc, const char **argv)
 {
 	weather_refresh();
 
-	xmlDoc *doc;
+	weather_ui();
 
-	doc = xmlReadFile("weather.xml", 0, 0);
-
-	if(doc == NULL)
-	{
-		die("Failed to read xml file '%s'", WEATHER_XML);
-	}
-
-	struct weather today, day1, day2, day3;
-
-	weather_query(&today, 0, doc);
-	weather_query(&day1, 1, doc);
-	weather_query(&day2, 2, doc);
-	weather_query(&day3, 3, doc);
-
-	xmlFreeDoc(doc);
 	return EXIT_SUCCESS;
 }
 
 /* 
  * load ui
  * */
-static weather_ui()
+static void weather_ui()
 {
-	if(window != NULL)
-	{
-		return;
-	}
-
-	/* fixed container */
-	GtkWidget *fixed;
+	GtkWidget *window;                      /* main window */
+	GtkWidget *fixed;                       /* fixed container */
+	struct position win_pos;
+	struct cfg **days_cfg;
 
 	gtk_init(NULL, NULL);
 
@@ -88,7 +72,7 @@ static weather_ui()
 	gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
 
 	/* set window size */
-	gtk_window_set_default_size(GTK_WINDOW(window), 120, 480);
+	gtk_window_set_default_size(GTK_WINDOW(window), 120, 220);
 	
 	/* remove taskbar */
 	gtk_window_set_skip_taskbar_hint(GTK_WINDOW(window), TRUE);
@@ -98,11 +82,56 @@ static weather_ui()
 	gtk_window_set_keep_below(GTK_WINDOW(window), TRUE);
 
 	/* set window position */
-	gtk_widget_set_uposition(window, 0, 0);
+	cfg_get_pos(CFG_MAIN_XY, &win_pos);
+	gtk_widget_set_uposition(window, win_pos.x, win_pos.y);
 
 	fixed = gtk_fixed_new();
 
-	gtk_container_add(GTK_WINDOW(window), fixed);
+	gtk_container_add(GTK_CONTAINER(window), fixed);
+
+	/* get all days config */
+	days_cfg = cfg_get_days_cfg();
+
+	register int idx = 0, days_id;
+	struct cfg **ptr = days_cfg;
+	struct position pos;
+	struct weather day;
+	xmlDoc *doc = weather_refresh();
+
+	for(struct cfg *c = *days_cfg; c;)
+	{
+		if(days == NULL)
+		{
+			days = calloc(sizeof *days, 1 + 1);
+		}
+		else
+			days = realloc(days, (idx + 1 + 1) * sizeof *days);
+
+		days_id = atoi(strstr(c->name, "day") + 3);
+
+		cfg_get_pos_by_cfg(c, &pos);
+
+		weather_query(&day, days_id, doc);
+
+		chdir("icons");
+		
+		_INFO("%s", day.name);
+		_INFO("%d", day.low);
+
+		*(days + idx) = gtk_image_new_from_file(day.icon);
+
+		gtk_fixed_put(GTK_FIXED(fixed), *(days + idx), pos.x, pos.y);
+
+		*(days + idx + 1) = NULL;
+
+		c = *++days_cfg;
+	}
+
+	free(ptr);
+
+	gtk_widget_show_all(window);
+
+	gtk_main();
 }
 
 static xmlNode *weather_query_node(xmlNode *root, char *node_name, char *attr_name, unsigned int day)
@@ -167,18 +196,22 @@ static struct weather *weather_query(struct weather *w, unsigned int day, xmlDoc
 		die("Document wrong type");
 	}
 
-
-	node = weather_query_node(root, "day", "d", day);
-
+	/* get weather xml node */
 	if(day == 0)
 	{
+		node = weather_query_node(root, "cc", NULL, 0);
+
 		strncpy(w->name, "Today", sizeof w->name);
 	}
 	else
+	{
+		node = weather_query_node(root, "day", "d", day);
+
 		strncpy(w->name, (char *)xmlGetProp(node, (const xmlChar *)"t"), sizeof w->name);
+	}
 
 	/* get temperature */
-	xmlNode *temp = weather_query_node(node, "low", NULL, 0);
+	xmlNode *temp = weather_query_node(node, day == 0 ? "tmp" : "low", NULL, 0);
 	w->low = atoi((char *)xmlNodeListGetString(doc, temp->xmlChildrenNode, 1));
 
 	/* get temperature icon */
@@ -188,7 +221,24 @@ static struct weather *weather_query(struct weather *w, unsigned int day, xmlDoc
 	return w;
 }
 
-static void weather_refresh()
+static xmlDoc *weather_refresh()
 {
-	http_getfile(WEATHER_URL, WEATHER_XML, HTTP_NOCOOKIE);
+	char *zipcode, *url;
+
+	zipcode = cfg_get_zipcode();
+
+	url = calloc(strlen(WEATHER_API) + strlen(zipcode) + 1, 1);
+
+	sprintf(url, WEATHER_API, zipcode);
+
+	_DEBUG("URL: %s", url);
+
+	//http_getfile(url, WEATHER_XML, HTTP_NOCOOKIE);
+
+	free(zipcode);
+	free(url);
+
+	xmlDoc *doc = xmlReadFile(WEATHER_XML, 0, 0);
+
+	return doc;
 }

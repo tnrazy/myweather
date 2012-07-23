@@ -14,9 +14,13 @@
 
 #define CFG_MAP(XX) 							\
 XX(MAIN_XY,    		"main_xy") 					\
-XX(TODAY_XY,  		"today_xy")                                   	\
+XX(DAY0_XY,  		"day0_xy")                                   	\
+XX(DAY1_XY, 		"day1_xy") 					\
+XX(DAY2_XY, 		"day2_xy") 					\
+XX(DAY3_XY, 		"day3_xy") 					\
 XX(WIDTH, 		"width") 					\
-XX(HEIGHT, 		"height")
+XX(HEIGHT, 		"height") 					\
+XX(ZIPCODE, 		"zipcode")
 
 enum cfg_keys
 {
@@ -27,18 +31,31 @@ enum cfg_keys
     	CFG_UNKNOW
 };
 
+struct cfg
+{
+        enum cfg_keys cfgkey;
+        char *name;
+        char *value;
+};
+
+struct position
+{
+	int x;
+	int y;
+};
+
 void cfg_load();
 
-void cfg_refresh();
+struct position *cfg_get_pos(enum cfg_keys pos_key, struct position *pos);
 
-unsigned int cfg_get_x();
+unsigned int cfg_get_width();
 
-unsigned int cfg_get_y();
+unsigned int cfg_get_height();
 
-unsigned int cfg_get_pos_lock();
+char *cfg_get_zipcode();
 
-void cfg_set_postion(const char *xy);
+struct cfg **cfg_get_days_cfg();
 
-void cfg_set_postion_lock();
+struct position *cfg_get_pos_by_cfg(struct cfg *c, struct position *pos);
 
 #endif

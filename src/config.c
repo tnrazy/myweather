@@ -20,13 +20,6 @@
 #include <unistd.h>
 #include <pthread.h>
 
-struct cfg
-{
-        enum cfg_keys cfgkey;
-        char *name;
-        char *value;
-};
-
 static struct cfg cfgs[] = 
 {
         #define XX(CFG_KEY, CFG_NAME)                               {.cfgkey = CFG_##CFG_KEY, .name = CFG_NAME, .value = NULL},
@@ -40,8 +33,6 @@ static FILE *cfg_resolver();
 
 static char *cfg_get(enum cfg_keys cfg_key);
 
-static void cfg_set(enum cfg_keys, const char *value);
-
 static int cfg_init;
 
 #define INIT_CHK()                                                          if(cfg_init) return;
@@ -49,39 +40,15 @@ static int cfg_init;
 
 static char *cfg_filename;
 
-/* 
- * force refresh the conf file
- * */
-void cfg_refresh()
-{
-	cfg_init = 0;
-	cfg_load(cfg_filename);
-}
+static void cfg_check();
 
-void cfg_load(char *filename)
+void cfg_load()
 {
 	INIT_CHK();
 
 	FILE *cfgfile;
 
-	if(filename != NULL)
-	{
-		_DEBUG("%s", filename);
-		if(access(filename, F_OK | R_OK) == -1)
-		{
-			die("Config file '%s' not exists or can not be read", filename);
-		}
-
-		/* save config file name */
-		cfg_filename = filename;
-
-		cfgfile = fopen(filename, "r");
-	}
-	else
-	{
-		/* load default config file */
-		cfgfile = cfg_resolver();
-	}
+	cfgfile = cfg_resolver();
 
 	if(cfgfile == NULL)
 	{
@@ -137,38 +104,126 @@ void cfg_load(char *filename)
 
 	INIT_OK();
 
+	cfg_check();
+
 	_INFO("Load config file '%s' is ok.", cfg_filename);
 }
 
-unsigned int cfg_get_x()
+struct position *cfg_get_pos_by_cfg(struct cfg *c, struct position *pos)
 {
-	char *value = cfg_get(CFG_MAIN_XY);
-	int x = atoi(value);
+	pos->x = atoi(c->value);
+	pos->y = atoi(strchr(c->value, ',') + 1);
+
+	return pos;
+}
+
+struct position *cfg_get_pos(enum cfg_keys pos_key, struct position *pos)
+{
+	if(pos_key < CFG_MAIN_XY || pos_key > CFG_DAY3_XY)
+	{
+		_ERROR("Unknow pos_key: %d", pos_key);
+		pos->x = 0;
+		pos->y = 0;
+		
+		return pos;
+	}
+
+	char *value = cfg_get(pos_key);
+
+	pos->x = atoi(value);
+	pos->y = atoi(strchr(value, ',') + 1);
 
 	free(value);
-	return x;
+	return pos;
 }
 
-unsigned int cfg_get_y()
+struct cfg **cfg_get_days_cfg()
 {
-	char *value = cfg_get(CFG_MAIN_XY);
-	int y = atoi(strchr(value, ',') + 1);
+	struct cfg **days_cfg = NULL;
+	register int idx = 0;
+
+	for(struct cfg *c = cfgs; c; ++c)
+	{
+		if(c->cfgkey == CFG_UNKNOW)
+		{
+			break;
+		}
+
+		if(BEGIN_WITH(c->name, "day"))
+		{
+			if(days_cfg == NULL)
+			{
+				days_cfg = calloc(sizeof *days_cfg, 1 + 1);
+			}
+			else
+				days_cfg = realloc(days_cfg, (idx + 1 + 1) * sizeof *days_cfg);
+
+			*(days_cfg + idx) = c;
+
+			*(days_cfg + idx + 1) = NULL;
+
+			++idx;
+		}
+	}
+
+	return days_cfg;
+}
+
+/*struct position **cfg_get_days_pos()*/
+//{
+	//struct position **days_pos = NULL;
+	//register int idx = 0;
+
+	//for(struct cfg *c = cfgs; c; ++c)
+	//{
+		//if(c->cfgkey == CFG_UNKNOW)
+		//{
+			//break;
+		//}
+
+		//if(BEGIN_WITH(c->name, "day"))
+		//{
+			//if(days_pos == NULL)
+			//{
+				//days_pos = calloc(sizeof *days_pos, 1 + 1);
+			//}
+			//else
+				//days_pos = realloc(days_pos, (idx + 1 + 1) * sizeof *days_pos);
+
+			//*(days_pos + idx) = calloc(sizeof **days_pos, 1);
+
+			//cfg_get_pos(c->cfgkey, *(days_pos + idx));
+
+			//*(days_pos + idx + 1) = NULL;
+
+			//++idx;
+		//}
+	//}
+
+	//return days_pos;
+/*}*/
+
+unsigned int cfg_get_width()
+{
+	char *value = cfg_get(CFG_WIDTH);
+	int width = atoi(value);
 
 	free(value);
-	return y;
+	return width;
 }
 
-void cfg_set_postion(const char *xy)
+unsigned int cfg_get_height()
 {
-	cfg_set(CFG_MAIN_XY, xy);
+	char *value = cfg_get(CFG_HEIGHT);
+	int height = atoi(value);
+
+	free(value);
+	return height;
 }
 
-void cfg_set_postion_lock()
+char *cfg_get_zipcode()
 {
-	char format[2];
-	snprintf( format, 2, "%d", (~cfg_get_pos_lock() & 1) );
-
-	//cfg_set(CFG_POSITION_LOCK, format);
+	return cfg_get(CFG_ZIPCODE);
 }
 
 static char *cfg_get(enum cfg_keys cfg_key)
@@ -177,68 +232,11 @@ static char *cfg_get(enum cfg_keys cfg_key)
 
 	if(cfg_key < 0 || cfg_key >= CFG_UNKNOW)
 	{
-		_ERROR("Unknow cfg_key: %s", cfg_key);
+		_ERROR("Unknow cfg_key: %d", cfg_key);
 		return NULL;
 	}
 
 	return strdup(cfgs[cfg_key].value);
-}
-
-static pthread_mutex_t cfg_lock = PTHREAD_MUTEX_INITIALIZER;
-
-static void cfg_set(enum cfg_keys cfg_key, const char *value)
-{
-	if(cfg_key < 0 || cfg_key >= CFG_UNKNOW)
-	{
-		_ERROR("Unknow cfg_key: %s", cfg_key);
-		return;
-	}
-
-	pthread_mutex_lock(&cfg_lock);
-
-	FILE *cfgfile = fopen(cfg_filename, "w");
-
-	_DEBUG("Config file: %s, %d", cfg_filename, cfgfile == NULL);
-
-	char line[512] = { 0 };
-
-	for(struct cfg *list = cfgs,*entity = list; ;)
-	{
-		if(entity->cfgkey == CFG_UNKNOW)
-		{
-			break;
-		}
-
-		if(entity->cfgkey == cfg_key)
-		{
-			entity = ++list;
-
-			continue;
-		}
-
-		snprintf(line, sizeof line, "%s = %s\n\n", entity->name, entity->value);
-
-		_DEBUG("Write config line: %s", line);
-
-		if(fwrite(line, strlen(line), 1, cfgfile) < 0)
-		{
-			_ERROR("Failed to write config: %s", strerror(errno));
-		}
-
-		entity = ++list;
-	}
-
-	snprintf(line, sizeof line, "%s = %s\n\n", cfgs[cfg_key].name, value);
-
-	_DEBUG("Write config line: %s", line);
-
-	fwrite(line, strlen(line), 1, cfgfile);
-
-	fclose(cfgfile);
-
-	pthread_mutex_unlock(&cfg_lock);
-
-	cfg_refresh();
 }
 
 static FILE *cfg_resolver()
@@ -252,13 +250,13 @@ static FILE *cfg_resolver()
 		return cfgfile;
 	}
 
-	cfg_filename = path_real(getenv("XDG_CONFIG_HOME"), CFGNAME);
+	cfg_filename = path_real(getenv("XDG_CONFIG_HOME"), CFGHOMENAME);
 
 	_DEBUG("Try load default config file: %s", cfg_filename);
 
 	if(access(cfg_filename, F_OK | R_OK) == -1)
 	{
-		free(cfg_filename);
+		die("Config file '%s' not exists or not can read", cfg_filename);
 	}
 
 	/* save config file name */
@@ -267,3 +265,23 @@ static FILE *cfg_resolver()
 	return cfgfile;
 }
 
+static void cfg_check()
+{
+	for(struct cfg *c = cfgs; c; ++c)
+	{
+		if(c->cfgkey == CFG_UNKNOW)
+		{
+			break;
+		}
+
+		if(c->value == NULL && BEGIN_WITH(c->name, "day0"))
+		{
+			die("Today(day0) cna not be null");
+		}
+
+		if(c->value == NULL && !BEGIN_WITH(c->name, "day"))
+		{
+			die("Config field '%s' is null", c->name);
+		}
+	}
+}

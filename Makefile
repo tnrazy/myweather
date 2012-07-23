@@ -8,7 +8,7 @@ vpath 		%.c 	src/ui
 CC 		:= gcc
 CFLAGS 		:= -Wall -Werror -std=gnu99 -O0 -Isrc
 CFLAGS 		+= -I /usr/include/libxml2/
-#CFLAGS 		+= $(shell pkg-config --cflags --libs gtk+-2.0)
+CFLAGS 		+= $(shell pkg-config --cflags --libs gtk+-2.0)
 
 LDLIBS 		+= -L /usr/lib -lxml2
 
