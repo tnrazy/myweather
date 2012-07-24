@@ -17,6 +17,7 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
+#include <signal.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkscreen.h>
 #include <cairo.h>
@@ -29,6 +30,8 @@
 #define WEATHER_RES 					"/usr/share/myweather"
 #define WEATHER_DEF_ICON 				"na.png"
 #define WEATHER_DEF_TEXT 				"---"
+#define WEATHER_DEF_TMP 				0
+#define WEATHER_FMT_TEXT 				"<span foreground='white' font_desc='nu.se 6'>%d°C %s</span>"
 
 struct weather_info
 {
@@ -45,8 +48,8 @@ struct weather
 	unsigned int day_id;
 	
 	GtkWidget *icon;
-	
-	/* label */
+
+	GtkWidget *text;
 };
 
 static void weather_refresh();
@@ -68,6 +71,12 @@ static struct weather **days;
 
 int main(int argc, const char **argv)
 {
+	if(argc >= 2)
+	{
+		fprintf(stderr, "Just type '%s', = =\n", *argv);
+		exit(EXIT_SUCCESS);
+	}
+
 	if(access(WEATHER_RES, F_OK) == -1)
 	{
 		die("Weather resource directory '%s' is not exists", WEATHER_RES);
@@ -82,6 +91,24 @@ int main(int argc, const char **argv)
 	{
 		die("Failed to change working directory: %s", strerror(errno));
 	}
+
+	signal(SIGHUP, SIG_IGN);
+
+	switch(fork())
+	{
+		case -1:
+			die("fork() error: %s", strerror(errno));
+
+		case 0:
+			break;
+			
+		default:
+			exit(EXIT_SUCCESS);
+	}
+
+	close(STDIN_FILENO);
+	stdout = freopen("/dev/null", "rw", stdout);
+	stderr = freopen("/dev/null", "rw", stderr);
 
 	weather_ui();
 
@@ -166,6 +193,18 @@ static void weather_ui()
 		cfg_get_pos_by_cfg(c, &pos);
 
 		gtk_fixed_put(GTK_FIXED(container), w->icon, pos.x, pos.y);
+
+		w->text = gtk_label_new(NULL);
+
+		gtk_label_set_label(GTK_LABEL(w->text), WEATHER_DEF_TEXT);
+
+		char format[512];
+
+		snprintf(format, sizeof format, WEATHER_FMT_TEXT, WEATHER_DEF_TMP, WEATHER_DEF_TEXT);
+
+		gtk_label_set_markup(GTK_LABEL(w->text), format);
+
+		gtk_fixed_put(GTK_FIXED(container), w->text, pos.x + 40, pos.y + 10);
 
 		*(days + idx) = w;
 
@@ -282,6 +321,7 @@ static void weather_refresh()
 	GtkWidget *new;
 
 	xmlDoc *doc = weather_load();
+	char format[512] = { 0 };
 
 	for(struct weather **list = days, *day = *list; day;)
 	{
@@ -293,6 +333,10 @@ static void weather_refresh()
 
 		gtk_container_remove(GTK_CONTAINER(day->icon), old);
 		gtk_container_add(GTK_CONTAINER(day->icon), new);
+
+		snprintf(format, sizeof format, WEATHER_FMT_TEXT, day->day_info->temperature, day->day_info->name);
+
+		gtk_label_set_markup(GTK_LABEL(day->text), format);
 
 		gtk_widget_show(new);
 
