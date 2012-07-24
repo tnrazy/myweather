@@ -31,8 +31,8 @@ HTTP_HDR_SIZE	http.h	24;"	d
 HTTP_MTD_UNKNOW	http.h	/^HTTP_MTD_UNKNOW$/;"	e	enum:http_mtd_types
 HTTP_NOCOOKIE	http.h	/^    HTTP_NOCOOKIE, HTTP_COOKIE$/;"	e	enum:http_flags
 HTTP_UTILS_H	http_utils.h	11;"	d
-INIT_CHK	config.c	45;"	d	file:
-INIT_OK	config.c	46;"	d	file:
+INIT_CHK	config.c	38;"	d	file:
+INIT_OK	config.c	39;"	d	file:
 KB	http.h	19;"	d
 LOG_H	log.h	11;"	d
 MB	http.h	20;"	d
@@ -55,8 +55,8 @@ UAGENT	http.h	27;"	d
 UTILS_H	utils.h	11;"	d
 WEATHER_API	weather.c	23;"	d	file:
 WEATHER_XML	weather.c	22;"	d	file:
-XX	config.c	32;"	d	file:
-XX	config.c	34;"	d	file:
+XX	config.c	25;"	d	file:
+XX	config.c	27;"	d	file:
 XX	config.h	27;"	d
 XX	config.h	29;"	d
 XX	http.h	124;"	d
@@ -93,10 +93,10 @@ ___MSG	log.h	41;"	d
 ___MSG	log.h	43;"	d
 ___TEMPLATE_INIT	http_compile.c	11;"	d	file:
 addr	http.h	/^    struct http_addr *addr;$/;"	m	struct:http_req	typeref:struct:http_req::http_addr	access:public
-cfg	config.c	/^struct cfg$/;"	s	file:
-cfg::cfgkey	config.c	/^        enum cfg_keys cfgkey;$/;"	m	struct:cfg	typeref:enum:cfg::cfg_keys	file:	access:public
-cfg::name	config.c	/^        char *name;$/;"	m	struct:cfg	file:	access:public
-cfg::value	config.c	/^        char *value;$/;"	m	struct:cfg	file:	access:public
+cfg	config.h	/^struct cfg$/;"	s
+cfg::cfgkey	config.h	/^        enum cfg_keys cfgkey;$/;"	m	struct:cfg	typeref:enum:cfg::cfg_keys	access:public
+cfg::name	config.h	/^        char *name;$/;"	m	struct:cfg	access:public
+cfg::value	config.h	/^        char *value;$/;"	m	struct:cfg	access:public
 cfg_check	config.c	/^static void cfg_check()$/;"	f	file:
 cfg_check	config.c	/^static void cfg_check();$/;"	p	file:
 cfg_filename	config.c	/^static char *cfg_filename;$/;"	v	file:
@@ -120,12 +120,14 @@ cfg_load	config.c	/^void cfg_load()$/;"	f
 cfg_load	config.h	/^void cfg_load();$/;"	p	signature:()
 cfg_resolver	config.c	/^static FILE *cfg_resolver()$/;"	f	file:
 cfg_resolver	config.c	/^static FILE *cfg_resolver();$/;"	p	file:
-cfgkey	config.c	/^        enum cfg_keys cfgkey;$/;"	m	struct:cfg	typeref:enum:cfg::cfg_keys	file:	access:public
+cfgkey	config.h	/^        enum cfg_keys cfgkey;$/;"	m	struct:cfg	typeref:enum:cfg::cfg_keys	access:public
 cfgs	config.c	/^static struct cfg cfgs[] = $/;"	v	typeref:struct:cfg	file:
 color_types	log.h	/^enum color_types$/;"	g
 cookie	http.h	/^    char *cookie;$/;"	m	struct:http_res	access:public
 cxt_types	http.h	/^struct file_type cxt_types[] =$/;"	v	typeref:struct:file_type
-days	weather.c	/^static GtkWidget **days;$/;"	v	file:
+day_id	weather.c	/^	unsigned int day_id;$/;"	m	struct:weather	file:	access:public
+day_info	weather.c	/^	struct weather_info *day_info;$/;"	m	struct:weather	typeref:struct:weather::weather_info	file:	access:public
+days	weather.c	/^static struct weather **days;$/;"	v	typeref:struct:weather	file:
 die	log.c	/^void die(const char *format, ...)$/;"	f	signature:(const char *format, ...)
 die	log.h	/^void die(const char *format, ...);$/;"	p	signature:(const char *format, ...)
 ext	http.h	/^    char *ext;$/;"	m	struct:file_type	access:public
@@ -137,7 +139,6 @@ from_hex	http_utils.c	/^static char from_hex(char ch)$/;"	f	file:	signature:(cha
 from_hex	http_utils.c	/^static char from_hex(char ch);$/;"	p	file:	signature:(char ch)
 hdr	http.h	/^    char *hdr;$/;"	m	struct:http_req	access:public
 hdr_gen	http.h	/^typedef char *(*hdr_gen)(char *host, char *uri, enum http_cxt_types type, char *data);$/;"	t
-hight	weather.c	/^	int hight;$/;"	m	struct:weather	file:	access:public
 host	http.h	/^    char *host;$/;"	m	struct:http_addr	access:public
 http_addr	http.h	/^struct http_addr$/;"	s
 http_addr::host	http.h	/^    char *host;$/;"	m	struct:http_addr	access:public
@@ -196,20 +197,19 @@ http_res_gethdr	http_exec.c	/^static char *http_res_gethdr(int connfd, char **ta
 http_res_gethdr	http_exec.c	/^static char *http_res_gethdr(int connfd, char **tail, unsigned long *tail_len);$/;"	p	file:	signature:(int connfd, char **tail, unsigned long *tail_len)
 http_url_check	http_compile.c	/^static int http_url_check(char const *url)$/;"	f	file:	signature:(char const *url)
 http_url_check	http_compile.c	/^static int http_url_check(char const *url);$/;"	p	file:	signature:(char const *url)
-icon	weather.c	/^	char icon[16];$/;"	m	struct:weather	file:	access:public
+icon	weather.c	/^	char icon[16];$/;"	m	struct:weather_info	file:	access:public
 idx	http.h	/^    enum http_cxt_types idx;$/;"	m	struct:file_type	typeref:enum:file_type::http_cxt_types	access:public
 if_null_return	log.h	80;"	d
 if_null_return_null	log.h	86;"	d
 length	http.h	/^    unsigned long length;$/;"	m	struct:http_res	access:public
-low	weather.c	/^	int low;$/;"	m	struct:weather	file:	access:public
 main	weather.c	/^int main(int argc, const char **argv)$/;"	f	signature:(int argc, const char **argv)
 minor	http.h	/^    unsigned int minor;$/;"	m	struct:http_res	access:public
 msg_color	log.c	/^int msg_color[] = $/;"	v
 msg_out	log.c	/^int msg_out[] =$/;"	v
 msg_prefix	log.c	/^char *msg_prefix[] =$/;"	v
 msg_types	log.h	/^enum msg_types$/;"	g
-name	config.c	/^        char *name;$/;"	m	struct:cfg	file:	access:public
-name	weather.c	/^	char name[16];$/;"	m	struct:weather	file:	access:public
+name	config.h	/^        char *name;$/;"	m	struct:cfg	access:public
+name	weather.c	/^	char name[16];$/;"	m	struct:weather_info	file:	access:public
 path_real	utils.c	/^char *path_real(const char *path, char *filename)$/;"	f	signature:(const char *path, char *filename)
 path_real	utils.h	/^char *path_real(const char *path, char *filename);$/;"	p	signature:(const char *path, char *filename)
 path_wildcard	utils.c	/^char *path_wildcard(const char *str)$/;"	f	signature:(const char *str)
@@ -229,13 +229,13 @@ strstr_ln	http_utils.c	/^char *strstr_ln(char *src, char *buf, size_t size, cons
 strstr_ln	http_utils.h	/^char *strstr_ln(char *src, char *buf, size_t size, const char *token);$/;"	p	signature:(char *src, char *buf, size_t size, const char *token)
 tail	http.h	/^    char *tail;$/;"	m	struct:http_res	access:public
 tail_len	http.h	/^    unsigned long tail_len;$/;"	m	struct:http_res	access:public
+temperature	weather.c	/^	int temperature;$/;"	m	struct:weather_info	file:	access:public
 time_flag	http_utils.h	/^enum time_flag$/;"	g
 timeout_end	http_utils.h	78;"	d
 timeout_start	http_utils.h	39;"	d
 tname	http.h	/^    char *tname;$/;"	m	struct:file_type	access:public
 to_hex	http_utils.c	/^static char to_hex(char ch)$/;"	f	file:	signature:(char ch)
 to_hex	http_utils.c	/^static char to_hex(char ch);$/;"	p	file:	signature:(char ch)
-today_icon	weather.c	/^static GtkWidget *today_icon;$/;"	v	file:
 trim	utils.c	/^char *trim(char *str)$/;"	f	signature:(char *str)
 trim	utils.h	/^char *trim(char *str);$/;"	p	signature:(char *str)
 type	http.h	/^    struct file_type *type;$/;"	m	struct:http_res	typeref:struct:http_res::file_type	access:public
@@ -245,19 +245,24 @@ url_decode	http_utils.c	/^char *url_decode(const char *str)$/;"	f	signature:(con
 url_decode	http_utils.h	/^char *url_decode(const char *str);$/;"	p	signature:(const char *str)
 url_encode	http_utils.c	/^char *url_encode(const char *str)$/;"	f	signature:(const char *str)
 url_encode	http_utils.h	/^char *url_encode(const char *str);$/;"	p	signature:(const char *str)
-value	config.c	/^        char *value;$/;"	m	struct:cfg	file:	access:public
+value	config.h	/^        char *value;$/;"	m	struct:cfg	access:public
 weather	weather.c	/^struct weather$/;"	s	file:
-weather::hight	weather.c	/^	int hight;$/;"	m	struct:weather	file:	access:public
-weather::icon	weather.c	/^	char icon[16];$/;"	m	struct:weather	file:	access:public
-weather::low	weather.c	/^	int low;$/;"	m	struct:weather	file:	access:public
-weather::name	weather.c	/^	char name[16];$/;"	m	struct:weather	file:	access:public
-weather_query	weather.c	/^static struct weather *weather_query(struct weather *w, unsigned int day, xmlDoc *doc)$/;"	f	file:	signature:(struct weather *w, unsigned int day, xmlDoc *doc)
+weather::day_id	weather.c	/^	unsigned int day_id;$/;"	m	struct:weather	file:	access:public
+weather::day_info	weather.c	/^	struct weather_info *day_info;$/;"	m	struct:weather	typeref:struct:weather::weather_info	file:	access:public
+weather::widget_icon	weather.c	/^	GtkWidget *widget_icon;$/;"	m	struct:weather	file:	access:public
+weather_free	weather.c	/^static void weather_free(struct weather *ptr);$/;"	p	file:	signature:(struct weather *ptr)
+weather_info	weather.c	/^struct weather_info$/;"	s	file:
+weather_info::icon	weather.c	/^	char icon[16];$/;"	m	struct:weather_info	file:	access:public
+weather_info::name	weather.c	/^	char name[16];$/;"	m	struct:weather_info	file:	access:public
+weather_info::temperature	weather.c	/^	int temperature;$/;"	m	struct:weather_info	file:	access:public
 weather_query	weather.c	/^static struct weather *weather_query(struct weather *w, unsigned int day, xmlDoc *doc);$/;"	p	file:	signature:(struct weather *w, unsigned int day, xmlDoc *doc)
+weather_query	weather.c	/^static struct weather *weather_query(struct weather_info *info, unsigned int day, xmlDoc *doc)$/;"	f	file:	signature:(struct weather_info *info, unsigned int day, xmlDoc *doc)
 weather_query_node	weather.c	/^static xmlNode *weather_query_node(xmlNode *root, char *node_name, char *attr_name, unsigned int day)$/;"	f	file:	signature:(xmlNode *root, char *node_name, char *attr_name, unsigned int day)
 weather_query_node	weather.c	/^static xmlNode *weather_query_node(xmlNode *root, char *node_name, char *attr_name, unsigned int day);$/;"	p	file:	signature:(xmlNode *root, char *node_name, char *attr_name, unsigned int day)
-weather_refresh	weather.c	/^static void weather_refresh()$/;"	f	file:
-weather_refresh	weather.c	/^static void weather_refresh();$/;"	p	file:
+weather_refresh	weather.c	/^static xmlDoc *weather_refresh()$/;"	f	file:
+weather_refresh	weather.c	/^static xmlDoc *weather_refresh();$/;"	p	file:
 weather_ui	weather.c	/^static void weather_ui()$/;"	f	file:
 weather_ui	weather.c	/^static void weather_ui();$/;"	p	file:
+widget_icon	weather.c	/^	GtkWidget *widget_icon;$/;"	m	struct:weather	file:	access:public
 x	config.h	/^	int x;$/;"	m	struct:position	access:public
 y	config.h	/^	int y;$/;"	m	struct:position	access:public

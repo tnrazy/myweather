@@ -15,37 +15,73 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <unistd.h>
 #include <gtk/gtk.h>
+#include <gdk/gdkscreen.h>
+#include <cairo.h>
+#include <assert.h>
 #include <libxml/parser.h>
 
 #define WEATHER_XML 					"/tmp/weather.xml"
 #define WEATHER_API 					"http://xml.weather.com/weather/local/%s?cc=*&unit=m&dayf=6"
 
-struct weather
+#define WEATHER_RES 					"/usr/share/myweather"
+#define WEATHER_DEF_ICON 				"na.png"
+#define WEATHER_DEF_TEXT 				"---"
+
+struct weather_info
 {
 	char name[16];
 	char icon[16];
 
-	int low;
+	int temperature;
 };
 
-static xmlDoc *weather_refresh();
+struct weather
+{
+	struct weather_info *day_info;
 
-static xmlNode *weather_query_node(xmlNode *root, char *node_name, char *attr_name, unsigned int day);
+	unsigned int day_id;
+	
+	GtkWidget *icon;
+	
+	/* label */
+};
 
-static struct weather *weather_query(struct weather *w, unsigned int day, xmlDoc *doc);
+static void weather_refresh();
+
+static xmlDoc *weather_load();
+
+static struct weather_info *weather_query(struct weather_info *info, unsigned int day, xmlDoc *doc);
 
 static void weather_ui();
 
+static int ui_set_transparent(GtkWidget *widget, GdkScreen *old_screen, void *data);
+
+static int ui_do_transparent(GtkWidget *widget, GdkEventExpose *event, void *data);
+
 /* weather days */
-static GtkWidget **days;
+static struct weather **days;
 
 /* weather today */
 
 int main(int argc, const char **argv)
 {
-	weather_refresh();
+	if(access(WEATHER_RES, F_OK) == -1)
+	{
+		die("Weather resource directory '%s' is not exists", WEATHER_RES);
+	}
+
+	if(access(WEATHER_RES, R_OK) == -1)
+	{
+		die("Weather resource directory '%s' access denined", WEATHER_RES);
+	}
+
+	if(chdir(WEATHER_RES) == -1)
+	{
+		die("Failed to change working directory: %s", strerror(errno));
+	}
 
 	weather_ui();
 
@@ -57,10 +93,10 @@ int main(int argc, const char **argv)
  * */
 static void weather_ui()
 {
-	GtkWidget *window;                      /* main window */
-	GtkWidget *fixed;                       /* fixed container */
-	struct position win_pos;
-	struct cfg **days_cfg;
+	GtkWidget *window;
+	GtkWidget *container;
+
+	struct position win_pos, pos;
 
 	gtk_init(NULL, NULL);
 
@@ -85,18 +121,18 @@ static void weather_ui()
 	cfg_get_pos(CFG_MAIN_XY, &win_pos);
 	gtk_widget_set_uposition(window, win_pos.x, win_pos.y);
 
-	fixed = gtk_fixed_new();
+	container = gtk_fixed_new();
 
-	gtk_container_add(GTK_CONTAINER(window), fixed);
+	gtk_container_add(GTK_CONTAINER(window), container);
 
 	/* get all days config */
-	days_cfg = cfg_get_days_cfg();
+	struct cfg **days_cfg;
+	struct cfg **ptr;
 
-	register int idx = 0, days_id;
-	struct cfg **ptr = days_cfg;
-	struct position pos;
-	struct weather day;
-	xmlDoc *doc = weather_refresh();
+	days_cfg = cfg_get_days_cfg();
+	ptr = days_cfg;
+
+	register int idx = 0;
 
 	for(struct cfg *c = *days_cfg; c;)
 	{
@@ -107,27 +143,46 @@ static void weather_ui()
 		else
 			days = realloc(days, (idx + 1 + 1) * sizeof *days);
 
-		days_id = atoi(strstr(c->name, "day") + 3);
+		struct weather *w = calloc(sizeof **days, 1);
+		
+		/* today? tomorrow? or .. */
+		w->day_id = atoi(strstr(c->name, "day") + 3);
 
+		/* weather info */
+		w->day_info = calloc(sizeof *w->day_info, 1);
+
+		/* widget icon container */
+		w->icon = gtk_event_box_new();
+
+		/* set container invisible */
+		gtk_event_box_set_visible_window(GTK_EVENT_BOX(w->icon), FALSE);
+
+		/* set weather data as default */
+		gtk_container_add(GTK_CONTAINER(w->icon), gtk_image_new_from_file(WEATHER_DEF_ICON));
+
+		/* widget text */
+
+		/* widget position */
 		cfg_get_pos_by_cfg(c, &pos);
 
-		weather_query(&day, days_id, doc);
+		gtk_fixed_put(GTK_FIXED(container), w->icon, pos.x, pos.y);
 
-		chdir("icons");
-		
-		_INFO("%s", day.name);
-		_INFO("%d", day.low);
-
-		*(days + idx) = gtk_image_new_from_file(day.icon);
-
-		gtk_fixed_put(GTK_FIXED(fixed), *(days + idx), pos.x, pos.y);
+		*(days + idx) = w;
 
 		*(days + idx + 1) = NULL;
 
 		c = *++days_cfg;
+
+		++idx;
 	}
 
 	free(ptr);
+
+	ui_set_transparent(window, NULL, NULL);
+
+	g_timeout_add(5 * 60 * 1000, (GSourceFunc)weather_refresh, NULL);
+
+	weather_refresh();
 
 	gtk_widget_show_all(window);
 
@@ -176,7 +231,7 @@ static xmlNode *weather_query_node(xmlNode *root, char *node_name, char *attr_na
 	return NULL;
 }
 
-static struct weather *weather_query(struct weather *w, unsigned int day, xmlDoc *doc)
+static struct weather_info *weather_query(struct weather_info *info, unsigned int day, xmlDoc *doc)
 {
 	xmlNode *root, *node = NULL;	
 	
@@ -201,27 +256,53 @@ static struct weather *weather_query(struct weather *w, unsigned int day, xmlDoc
 	{
 		node = weather_query_node(root, "cc", NULL, 0);
 
-		strncpy(w->name, "Today", sizeof w->name);
+		strncpy(info->name, "Today", sizeof info->name);
 	}
 	else
 	{
 		node = weather_query_node(root, "day", "d", day);
 
-		strncpy(w->name, (char *)xmlGetProp(node, (const xmlChar *)"t"), sizeof w->name);
+		strncpy(info->name, (char *)xmlGetProp(node, (const xmlChar *)"t"), sizeof info->name);
 	}
 
 	/* get temperature */
 	xmlNode *temp = weather_query_node(node, day == 0 ? "tmp" : "low", NULL, 0);
-	w->low = atoi((char *)xmlNodeListGetString(doc, temp->xmlChildrenNode, 1));
+	info->temperature = atoi((char *)xmlNodeListGetString(doc, temp->xmlChildrenNode, 1));
 
 	/* get temperature icon */
 	xmlNode *icon = weather_query_node(node, "icon", NULL, 0);
-	snprintf(w->icon, sizeof w->icon, "%s.png", xmlNodeListGetString(doc, icon->xmlChildrenNode, 1));
+	snprintf(info->icon, sizeof info->icon, "%s.png", xmlNodeListGetString(doc, icon->xmlChildrenNode, 1));
 
-	return w;
+	return info;
 }
 
-static xmlDoc *weather_refresh()
+static void weather_refresh()
+{
+	GtkWidget *old;
+	GtkWidget *new;
+
+	xmlDoc *doc = weather_load();
+
+	for(struct weather **list = days, *day = *list; day;)
+	{
+		/* query weather info by day id */
+		weather_query(day->day_info, day->day_id, doc);
+		
+		old = gtk_container_get_children(GTK_CONTAINER(day->icon))->data;
+		new = gtk_image_new_from_file(day->day_info->icon);
+
+		gtk_container_remove(GTK_CONTAINER(day->icon), old);
+		gtk_container_add(GTK_CONTAINER(day->icon), new);
+
+		gtk_widget_show(new);
+
+		day = *++list;
+	}
+
+	xmlFreeDoc(doc);
+}
+
+static xmlDoc *weather_load()
 {
 	char *zipcode, *url;
 
@@ -231,14 +312,55 @@ static xmlDoc *weather_refresh()
 
 	sprintf(url, WEATHER_API, zipcode);
 
-	_DEBUG("URL: %s", url);
+	remove(WEATHER_XML);
 
-	//http_getfile(url, WEATHER_XML, HTTP_NOCOOKIE);
+	http_getfile(url, WEATHER_XML, HTTP_NOCOOKIE);
+
+	xmlDoc *doc = xmlReadFile(WEATHER_XML, 0, 0);
 
 	free(zipcode);
 	free(url);
 
-	xmlDoc *doc = xmlReadFile(WEATHER_XML, 0, 0);
-
 	return doc;
+}
+
+
+
+static int ui_set_transparent(GtkWidget *widget, GdkScreen *old_screen, void *data)
+{
+	assert(widget != NULL);
+
+	GdkScreen *screen = gtk_widget_get_screen(widget);
+	GdkColormap *colormap = gdk_screen_get_rgba_colormap(screen);
+
+	if(!colormap)
+	{
+		return FALSE;
+	}
+
+	gtk_widget_set_colormap(widget, colormap);
+
+	g_signal_connect(widget, "screen_changed", G_CALLBACK(ui_set_transparent), NULL);
+	g_signal_connect(widget, "expose_event", G_CALLBACK(ui_do_transparent), NULL);
+
+	return FALSE;
+}
+
+/* 
+ * draw the transparent before show widget 
+ * */
+static int ui_do_transparent(GtkWidget *widget, GdkEventExpose *event, void *data)
+{
+   	cairo_t *cr = gdk_cairo_create(widget->window);
+
+	/* transparent */
+	cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.0);
+
+	/* draw the background */
+	cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+	cairo_paint(cr);
+
+	cairo_destroy(cr);
+
+	return FALSE;
 }
