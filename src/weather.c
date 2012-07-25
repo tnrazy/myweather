@@ -67,8 +67,6 @@ static int ui_do_transparent(GtkWidget *widget, GdkEventExpose *event, void *dat
 /* weather days */
 static struct weather **days;
 
-/* weather today */
-
 int main(int argc, const char **argv)
 {
 	if(argc >= 2)
