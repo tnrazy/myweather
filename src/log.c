@@ -50,13 +50,14 @@ int msg_color[] =
 
 void prmsg(enum msg_types msg_type, const char *format, ...)
 {
-    	if(msg_type < 0 || msg_type >= MSG_UNKNOW)
+	if(msg_type < 0)
 	{
-		___MSG(stderr,  msg_prefix[MSG_ERROR], 
-		  		"Error message type.", 
-		  		msg_color[MSG_ERROR], 
-		  		AT);
-		return;
+		msg_type = MSG_INFO;
+	}
+
+	if(msg_type > MSG_UNKNOW)
+	{
+		msg_type = MSG_ERROR;
 	}
 
 	char msg_buf[BUFSIZ] = {0};
