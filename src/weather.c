@@ -7,7 +7,6 @@
  * tn.razy@gmail.com
  */
 
-#include "http.h"
 #include "log.h"
 #include "config.h"
 
@@ -18,6 +17,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <signal.h>
+#include <curl/curl.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkscreen.h>
 #include <cairo.h>
@@ -63,6 +63,8 @@ static void weather_ui();
 static int ui_set_transparent(GtkWidget *widget, GdkScreen *old_screen, void *data);
 
 static int ui_do_transparent(GtkWidget *widget, GdkEventExpose *event, void *data);
+
+static size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream);
 
 /* weather days */
 static struct weather **days;
@@ -215,11 +217,11 @@ static void weather_ui()
 
 	free(ptr);
 
-	ui_set_transparent(window, NULL, NULL);
-
 	g_timeout_add(5 * 60 * 1000, (GSourceFunc)weather_refresh, NULL);
 
 	weather_refresh();
+
+	ui_set_transparent(window, NULL, NULL);
 
 	gtk_widget_show_all(window);
 
@@ -347,6 +349,9 @@ static void weather_refresh()
 static xmlDoc *weather_load()
 {
 	char *zipcode, *url;
+	FILE *fp;
+	CURL *curl;
+	xmlDoc *doc = NULL;
 
 	zipcode = cfg_get_zipcode();
 
@@ -356,9 +361,23 @@ static xmlDoc *weather_load()
 
 	remove(WEATHER_XML);
 
-	http_getfile(url, WEATHER_XML, HTTP_NOCOOKIE);
+	curl = curl_easy_init();
+	
+	if(curl)
+	{
+		fp = fopen(WEATHER_XML, "w+");
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
 
-	xmlDoc *doc = xmlReadFile(WEATHER_XML, 0, 0);
+		curl_easy_perform(curl);
+
+		curl_easy_cleanup(curl);
+
+		fclose(fp);
+
+		doc = xmlReadFile(WEATHER_XML, 0, 0);
+	}
 
 	free(zipcode);
 	free(url);
@@ -366,12 +385,8 @@ static xmlDoc *weather_load()
 	return doc;
 }
 
-
-
 static int ui_set_transparent(GtkWidget *widget, GdkScreen *old_screen, void *data)
 {
-	assert(widget != NULL);
-
 	GdkScreen *screen = gtk_widget_get_screen(widget);
 	GdkColormap *colormap = gdk_screen_get_rgba_colormap(screen);
 
@@ -406,3 +421,13 @@ static int ui_do_transparent(GtkWidget *widget, GdkEventExpose *event, void *dat
 
 	return FALSE;
 }
+
+static size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream)
+{
+	size_t num_bytes;
+
+	num_bytes = fwrite(ptr, size, nmemb, stream);
+
+	return num_bytes;
+}
+

@@ -11,6 +11,7 @@ CFLAGS 		+= -I /usr/include/libxml2/
 CFLAGS 		+= $(shell pkg-config --cflags --libs gtk+-2.0)
 
 LDLIBS 		+= -L /usr/lib -lxml2
+LDLIBS 		+= -lcurl
 
 #MAIN 		:= ./src/main.c
 BINNAME 	:= myweather
