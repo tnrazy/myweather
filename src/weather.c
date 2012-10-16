@@ -29,7 +29,7 @@
 #define WEATHER_API 					"http://xml.weather.com/weather/local/%s?cc=*&unit=m&dayf=6"
 
 #define WEATHER_RES 					"/usr/share/myweather"
-#define WEATHER_DEF_ICON 				"10.png"
+#define WEATHER_DEF_ICON 				"na.png"
 #define WEATHER_DEF_TEXT 				"---"
 #define WEATHER_DEF_TMP 				0
 #define WEATHER_FMT_TEXT 				"<span foreground='white' font_desc='nu.se 6'>%d°C %s</span>"
