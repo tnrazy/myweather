@@ -14,8 +14,6 @@
 
 char *trim(char *str);
 
-char *path_wildcard(const char *str);
-
-char *path_real(const char *path, char *filename);
+void die(const char *fmt, ...);
 
 #endif
