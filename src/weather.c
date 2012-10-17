@@ -28,7 +28,7 @@
 #define WEATHER_XML 					"/tmp/weather.xml"
 #define WEATHER_API 					"http://xml.weather.com/weather/local/%s?cc=*&unit=m&dayf=6"
 
-#define WEATHER_RES 					"/usr/share/myweather"
+#define WEATHER_RES 					"myweather/icons"
 #define WEATHER_DEF_ICON 				"na.png"
 #define WEATHER_DEF_TEXT 				"---"
 #define WEATHER_DEF_TMP 				0
@@ -84,6 +84,7 @@ static struct weather *weathers;
 int main(int argc, const char **argv)
 {
 	char filename[FILENAME_MAX] = { 0 };
+	char resdir[FILENAME_MAX] = { 0 };
 
 	if(argc >= 2)
 	{
@@ -92,20 +93,21 @@ int main(int argc, const char **argv)
 	}
 
 	snprintf(filename, FILENAME_MAX, "%s/%s", getenv("XDG_CONFIG_HOME"), CFGNAME);
+	snprintf(resdir, FILENAME_MAX, "%s/%s", getenv("XDG_CONFIG_HOME"), WEATHER_RES);
 
 	cfg_load(filename, (struct cfg **)&rc);
 
-	if(access(WEATHER_RES, F_OK) == -1)
+	if(-1 == access(resdir, F_OK))
 	{
-		die("Weather resource directory '%s' is not exists", WEATHER_RES);
+		die("Weather resource directory '%s' is not exists", resdir);
 	}
 
-	if(access(WEATHER_RES, R_OK) == -1)
+	if(-1 == access(resdir, R_OK))
 	{
-		die("Weather resource directory '%s' access denined", WEATHER_RES);
+		die("Weather resource directory '%s' access denined", resdir);
 	}
 
-	if(chdir(WEATHER_RES) == -1)
+	if(-1 == chdir(resdir))
 	{
 		die("Failed to change working directory: %s", strerror(errno));
 	}
