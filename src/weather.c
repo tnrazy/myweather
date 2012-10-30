@@ -26,6 +26,7 @@
 
 #define CFGNAME 					"myweather/weather.rc"
 #define WEATHER_XML 					"/tmp/weather.xml"
+#define WEATHER_LOG 					"/tmp/weather.log"
 #define WEATHER_API 					"http://xml.weather.com/weather/local/%s?cc=*&unit=m&dayf=6"
 
 #define WEATHER_RES 					"myweather/icons"
@@ -125,8 +126,8 @@ int main(int argc, const char **argv)
 	}
 
 	close(STDIN_FILENO);
-	stdout = freopen("/dev/null", "rw", stdout);
-	stderr = freopen("/dev/null", "rw", stderr);
+	stdout = freopen(WEATHER_LOG, "a+", stdout);
+	stderr = freopen(WEATHER_LOG, "a+", stderr);
 
 	weather_init();
 
@@ -329,13 +330,13 @@ static void weather_refresh()
 
 	for(struct weather *last = weathers; last;)
 	{
-		printf("ID: %d, ICON: %s, TEMP: %s\n", last->id, last->info->name, last->info->icon);
-
 		/* query weather info by day id */
 		if(NULL == weather_query(last->info, last->id, doc))
 		{
 			continue;
 		}
+
+		printf("ID: %d, DAY: %s, TEMP: %d, ICON: %s\n", last->id, last->info->name, last->info->temperature, last->info->icon);
 		
 		old = gtk_container_get_children(GTK_CONTAINER(last->icon))->data;
 		new = gtk_image_new_from_file(last->info->icon);
