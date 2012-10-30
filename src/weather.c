@@ -126,8 +126,12 @@ int main(int argc, const char **argv)
 	}
 
 	close(STDIN_FILENO);
+
 	stdout = freopen(WEATHER_LOG, "a+", stdout);
 	stderr = freopen(WEATHER_LOG, "a+", stderr);
+
+	setvbuf(stdout, NULL, _IONBF, 0);
+	setvbuf(stderr, NULL, _IONBF, 0);
 
 	weather_init();
 
