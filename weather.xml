@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+		<rss version="2.0" xmlns:yweather="http://xml.weather.yahoo.com/ns/rss/1.0" xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#">
+			<channel>
+		
+<title>Yahoo! Weather - Hyogo-ku, JP</title>
+<link>http://us.rd.yahoo.com/dailynews/rss/weather/Hyogo-ku__JP/*http://weather.yahoo.com/forecast/JAXX0040_c.html</link>
+<description>Yahoo! Weather for Hyogo-ku, JP</description>
+<language>en-us</language>
+<lastBuildDate>Wed, 30 Oct 2013 8:59 pm JST</lastBuildDate>
+<ttl>60</ttl>
+<yweather:location city="Hyogo-ku" region=""   country="Japan"/>
+<yweather:units temperature="C" distance="km" pressure="mb" speed="km/h"/>
+<yweather:wind chill="18"   direction="40"   speed="20.92" />
+<yweather:atmosphere humidity="49"  visibility="9.99"  pressure="1015.92"  rising="1" />
+<yweather:astronomy sunrise="6:16 am"   sunset="5:07 pm"/>
+<image>
+<title>Yahoo! Weather</title>
+<width>142</width>
+<height>18</height>
+<link>http://weather.yahoo.com</link>
+<url>http://l.yimg.com/a/i/brand/purplelogo//uh/us/news-wea.gif</url>
+</image>
+<item>
+<title>Conditions for Hyogo-ku, JP at 8:59 pm JST</title>
+<geo:lat>34.68</geo:lat>
+<geo:long>135.16</geo:long>
+<link>http://us.rd.yahoo.com/dailynews/rss/weather/Hyogo-ku__JP/*http://weather.yahoo.com/forecast/JAXX0040_c.html</link>
+<pubDate>Wed, 30 Oct 2013 8:59 pm JST</pubDate>
+<yweather:condition  text="Partly Cloudy"  code="29"  temp="18"  date="Wed, 30 Oct 2013 8:59 pm JST" />
+<description><![CDATA[
+<img src="http://l.yimg.com/a/i/us/we/52/29.gif"/><br />
+<b>Current Conditions:</b><br />
+Partly Cloudy, 18 C<BR />
+<BR /><b>Forecast:</b><BR />
+Wed - Partly Cloudy. High: 21 Low: 13<br />
+Thu - Partly Cloudy. High: 21 Low: 13<br />
+Fri - Sunny. High: 21 Low: 12<br />
+Sat - Sunny. High: 22 Low: 14<br />
+Sun - Partly Cloudy. High: 22 Low: 16<br />
+<br />
+<a href="http://us.rd.yahoo.com/dailynews/rss/weather/Hyogo-ku__JP/*http://weather.yahoo.com/forecast/JAXX0040_c.html">Full Forecast at Yahoo! Weather</a><BR/><BR/>
+(provided by <a href="http://www.weather.com" >The Weather Channel</a>)<br/>
+]]></description>
+<yweather:forecast day="Wed" date="30 Oct 2013" low="13" high="21" text="Partly Cloudy" code="29" />
+<yweather:forecast day="Thu" date="31 Oct 2013" low="13" high="21" text="Partly Cloudy" code="30" />
+<yweather:forecast day="Fri" date="1 Nov 2013" low="12" high="21" text="Sunny" code="32" />
+<yweather:forecast day="Sat" date="2 Nov 2013" low="14" high="22" text="Sunny" code="32" />
+<yweather:forecast day="Sun" date="3 Nov 2013" low="16" high="22" text="Partly Cloudy" code="30" />
+<guid isPermaLink="false">JAXX0040_2013_11_03_7_00_JST</guid>
+</item>
+</channel>
+</rss>
+
+<!-- fan1690.sports.bf1.yahoo.com Wed Oct 30 16:46:50 PST 2013 -->
