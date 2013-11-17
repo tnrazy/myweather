@@ -291,8 +291,6 @@ static void weather_load()
 			{
 				ptr = line;
 
-				printf( "Parse line:%s", line );
-
 				/* Get the location info */
 				if ( ptr = strstr( line, "yweather:location" ), ptr && !app.location )
 				{
@@ -330,8 +328,6 @@ static void weather_load()
 
 						if ( 2 == sscanf( ptr, "%15[^ =\t] = \"%31[^\r\n\"]", key, value ) )
 						{
-							printf( "Key:%s, Value:%s, %d\n", key, value, walk == NULL );
-
 							if ( EQUAL( "day", key ) )
 							{
 								strncpy( walk->day, value, strlen( value ) );
@@ -367,8 +363,6 @@ static void weather_load()
 
 		fclose(fp);
 	}
-
-	printf( "Parse forecast is Ok!\n" );
 }
 
 static int ui_set_transparent(GtkWidget *widget, GdkScreen *ignore, void *data)
