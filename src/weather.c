@@ -238,10 +238,10 @@ static void weather_refresh()
 
 	for(struct forecast *last = app.forecast; last;)
 	{
-		printf("ID: %d, DAY: %s, TEMP: %d, ICON: %s\n", last->low, last->date, last->high, last->day);
+		printf("CODE: %d, DAY: %s, TEMP: %d, ICON: %s\n", last->code, last->date, last->high, last->day);
 		
 		snprintf(format, sizeof format, WEATHER_FMT_TEXT, color.value, font.value, last->low, last->high, last->day);
-		snprintf(icon, sizeof icon, "%d.png", last->low);
+		snprintf(icon, sizeof icon, "%d.png", last->code);
 
 		old = gtk_container_get_children(GTK_CONTAINER(last->icon))->data;
 		new = gtk_image_new_from_file(icon);
