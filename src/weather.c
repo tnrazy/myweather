@@ -84,7 +84,7 @@ static struct cfg days 		= { .name = "days", 	.value = "" 		};
 
 static struct cfg *rc[] = 
 {
-	&position, &width, &height, &height, &zipcode, &days, NULL
+	&position, &width, &height, &height, &zipcode, &color, &font, &days, NULL
 };
 
 static struct app app;
@@ -240,7 +240,7 @@ static void weather_refresh()
 	{
 		printf("CODE: %d, DAY: %s, TEMP: %d, ICON: %s\n", last->code, last->date, last->high, last->day);
 		
-		snprintf(format, sizeof format, WEATHER_FMT_TEXT, color.value, font.value, last->low, last->high, last->day);
+		snprintf(format, sizeof format, WEATHER_FMT_TEXT, color.value, font.value, last->low, last->high, "");
 		snprintf(icon, sizeof icon, "%d.png", last->code);
 
 		old = gtk_container_get_children(GTK_CONTAINER(last->icon))->data;
