@@ -39,7 +39,7 @@ void cfg_load(const char *filename, struct cfg **rc)
 		}
 
 		/* skip comment line */
-		if(BEGIN_WITH(line, "#"))
+		if(STARTWITH(line, "#"))
 		{
 			continue;
 		}
@@ -58,7 +58,7 @@ void cfg_load(const char *filename, struct cfg **rc)
 				break;
 			}
 
-			if(BEGIN_WITH(line, entity->name))
+			if(STARTWITH(line, entity->name))
 			{
 				strncpy(entity->value, trim(strchr(line, '=') + 1), sizeof entity->value);
 

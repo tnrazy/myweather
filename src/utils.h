@@ -10,7 +10,9 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#define BEGIN_WITH(str, s)                          ( strncmp((str), (s), strlen(s)) == 0 )
+#define EQUAL( a, b) 				( 0 == strcmp( (a), (b) ) )
+#define STARTWITH( string, start ) 		( 0 == strncmp( (string), (start), strlen( (start) ) ) )
+#define ENDWITH( string, end ) 			EQUAL( (string) + strlen( (string) - strlen( (end) ) ), (end) )
 
 char *trim(char *str);
 

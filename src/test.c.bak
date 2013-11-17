@@ -1,0 +1,147 @@
+/*
+ * Licensed under the LGPL v2.1, see the file COPYING in base directory.
+ *
+ * Copyright (C) 2013 <tn.razy@gmail.com>
+ *
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+
+#define EQUAL( a, b) 				( 0 == strcmp( (a), (b) ) )
+#define STARTWITH( string, start ) 		( 0 == strncmp( (string), (start), strlen( (start) ) ) )
+#define ENDWITH( string, end ) 			EQUAL( (string) + strlen( (string) - strlen( (end) ) ), (end) )
+
+struct location
+{
+	char city[64];
+	char region[64];
+	char country[64];
+};
+
+struct forecast
+{
+	char day[32];
+	char date[32];
+	char text[32];
+
+	int low;
+	int high;
+	int code;
+
+	struct forecast *next;
+};
+
+struct weather
+{
+	struct location *location;
+	struct forecast *forecast;
+};
+
+void weather_parse( struct weather * const weather, FILE *in )
+{
+	char *ptr, *line = NULL, key[16] = { 0 }, value[32] = { 0 };
+	size_t size;
+
+	while ( !feof( in ) )
+	{
+		if ( getline( &line, &size, in ) )
+		{
+			ptr = line;
+			
+			/* Get the location info */
+			if ( ptr = strstr( line, "yweather:location" ), ptr && !weather->location )
+			{
+				weather->location = calloc( 1, sizeof( *(weather->location) ) );
+
+				while ( ptr = strstr( ptr, " " ), ptr )
+				{
+					/* Trim the blank */
+					while ( isspace( *ptr++ ) || ( --ptr && 0 ) );
+
+					memset( key, 0, 16 );
+					memset( value, 0, 32 );
+
+					if ( 2 == sscanf( ptr, "%15[^ =\t] = \"%31[^\r\n\"]", key, value ) )
+					{
+						if ( EQUAL( "city", key ) )
+						{
+							strncpy( weather->location->city, value, strlen( value ) );
+						} else if ( EQUAL( "region", key ) )
+						{
+							strncpy( weather->location->region, value, strlen( value ) );
+						} else if ( EQUAL( "country", key ) )
+						{
+							strncpy( weather->location->country, value, strlen( value ) );
+						}
+					}
+				}
+
+			} else if ( ptr = strstr( line, "yweather:forecast" ), ptr )
+			{
+				struct forecast *forecast = calloc( 1, sizeof( struct forecast ) );
+
+				/* Get the forecast */
+				while ( ptr = strstr( ptr, " " ), ptr )
+				{
+					while ( isspace( *ptr++ ) || ( --ptr && 0 ) );
+
+					if ( 2 == sscanf( ptr, "%15[^ =\t] = \"%31[^\r\n\"]", key, value ) )
+					{
+						if ( EQUAL( "day", key ) )
+						{
+							strncpy( forecast->day, value, strlen( value ) );
+						} else if ( EQUAL( "date", key ) )
+						{
+							strncpy( forecast->date, value, strlen( value ) );
+						} else if ( EQUAL( "low", key ) )
+						{
+							forecast->low = atoi( value );
+						} else if ( EQUAL( "high", key ) )
+						{
+							forecast->high = atoi( value );
+						} else if ( EQUAL( "text", key ) )
+						{
+							strncpy( forecast->text, value, strlen( value ) );
+						} else if ( EQUAL( "code", key ) )
+						{
+							forecast->code = atoi( value );
+						}
+					}
+
+					if ( !weather->forecast )
+					{
+						weather->forecast = forecast;
+					} else
+						weather->forecast->next = forecast;
+				}
+			}
+
+
+			free( line );
+
+			line = NULL;
+			size = 0;
+		}
+	}
+}
+
+int main( int argc, char **argv )
+{
+	char str[100] = "   Hello world!", *ptr = str;
+
+	while ( isspace( *ptr++ ) || ( --ptr && 0 ) );
+
+	printf( "Strng: %s\n", ptr );
+
+	struct weather weather;
+
+	memset( &weather, 0, sizeof weather );
+
+	weather_parse( &weather, fopen( "../weather.xml", "r+" ) );
+
+	return EXIT_SUCCESS;
+}

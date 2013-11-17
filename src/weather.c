@@ -22,44 +22,49 @@
 #include <gdk/gdkscreen.h>
 #include <cairo.h>
 #include <assert.h>
-#include <libxml/parser.h>
+#include <ctype.h>
 
 #define CFGNAME 					"myweather/weather.rc"
-#define WEATHER_XML 					"/tmp/weather.xml"
 #define WEATHER_LOG 					"/tmp/weather.log"
-#define WEATHER_API 					"http://xml.weather.com/weather/local/%s?cc=*&unit=m&dayf=6"
+#define WEATHER_API 					"http://weather.yahooapis.com/forecastrss?w=%s&u=c"
 
 #define WEATHER_RES 					"myweather/icons"
 #define WEATHER_DEF_ICON 				"na.png"
 #define WEATHER_DEF_TEXT 				"---"
-#define WEATHER_DEF_TMP 				0
-#define WEATHER_FMT_TEXT 				"<span foreground='white' font_desc='nu.se 6'>%d°C %s</span>"
+#define WEATHER_FMT_TEXT 				"<span foreground='%s' font_desc='%s'>%d ~ %d°C %s</span>"
 
-struct info
+struct location
 {
-	char name[16];
-	char icon[16];
-
-	int temperature;
+	char city[64];
+	char region[64];
+	char country[64];
 };
 
-struct weather
+struct forecast
 {
-	struct info *info;
+	char day[32];
+	char date[32];
+	char text[32];
+
+	int low;
+	int high;
+	int code;
 
 	GtkWidget *icon;
-	GtkWidget *text;
+	GtkWidget *display;
 
-	unsigned int id;
-	
-	struct weather *next;
+	struct forecast *next;
+};
+
+struct app
+{
+	struct location *location;
+	struct forecast *forecast;
 };
 
 static void weather_refresh();
 
-static xmlDoc *weather_load();
-
-static struct info *weather_query(struct info *info, unsigned int day, xmlDoc *doc);
+static void weather_load();
 
 static void weather_init();
 
@@ -69,18 +74,20 @@ static int ui_do_transparent(GtkWidget *widget, GdkEventExpose *event, void *dat
 
 static size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream);
 
-static struct cfg position 	= { .name = "position", .value = "0, 0" };
-static struct cfg width 	= { .name = "width", 	.value = "200" 	};
-static struct cfg height 	= { .name = "height", 	.value = "320" 	};
-static struct cfg zipcode  	= { .name = "zipcode", 	.value = "" 	};
-static struct cfg days 		= { .name = "days", 	.value = "" 	};
+static struct cfg position 	= { .name = "position", .value = "0, 0" 	};
+static struct cfg width 	= { .name = "width", 	.value = "200" 		};
+static struct cfg height 	= { .name = "height", 	.value = "320" 		};
+static struct cfg color 	= { .name = "color", 	.value = "white" 	};
+static struct cfg font 		= { .name = "font", 	.value = "nu.se 7" };
+static struct cfg zipcode  	= { .name = "zipcode", 	.value = "" 		};
+static struct cfg days 		= { .name = "days", 	.value = "" 		};
 
 static struct cfg *rc[] = 
 {
 	&position, &width, &height, &height, &zipcode, &days, NULL
 };
 
-static struct weather *weathers;
+static struct app app;
 
 int main(int argc, const char **argv)
 {
@@ -97,16 +104,6 @@ int main(int argc, const char **argv)
 	snprintf(resdir, FILENAME_MAX, "%s/%s", getenv("XDG_CONFIG_HOME"), WEATHER_RES);
 
 	cfg_load(filename, (struct cfg **)&rc);
-
-	if(-1 == access(resdir, F_OK))
-	{
-		die("Weather resource directory '%s' is not exists", resdir);
-	}
-
-	if(-1 == access(resdir, R_OK))
-	{
-		die("Weather resource directory '%s' access denined", resdir);
-	}
 
 	if(-1 == chdir(resdir))
 	{
@@ -146,8 +143,8 @@ static void weather_init()
 	GtkWidget *window;
 	GtkWidget *container;
 
-	struct position app_pos = { 0, 0 }, pos = { 0, 0 };
-	struct weather *last = NULL;
+	struct position pos = { 0, 0 };
+	struct forecast *last = NULL;
 
 	gtk_init(NULL, NULL);
 
@@ -169,55 +166,44 @@ static void weather_init()
 	gtk_window_set_keep_below(GTK_WINDOW(window), TRUE);
 
 	/* set window position */
-	mkpos(position.value, &app_pos);
-	gtk_widget_set_uposition(window, app_pos.x, app_pos.y);
+	mkpos(position.value, &pos);
+	gtk_widget_set_uposition(window, pos.x, pos.y);
 
 	container = gtk_fixed_new();
 
 	gtk_container_add(GTK_CONTAINER(window), container);
 
-	/* get all days position */
-	register int idx = 0;
-
+	/* build the forecast */
 	for(char *s = days.value; *s;)
 	{
-		struct weather *w = calloc(sizeof *w, 1);
+		struct forecast *forecast = calloc( 1, sizeof *forecast );
 
 		mkpos(s, &pos);
 
-		w->icon = gtk_event_box_new();
+		forecast->icon = gtk_event_box_new();
 
 		/* set container invisible */
-		gtk_event_box_set_visible_window(GTK_EVENT_BOX(w->icon), FALSE);
+		gtk_event_box_set_visible_window(GTK_EVENT_BOX(forecast->icon), FALSE);
 
 		/* set weather data as default */
-		gtk_container_add(GTK_CONTAINER(w->icon), gtk_image_new_from_file(WEATHER_DEF_ICON));
+		gtk_container_add(GTK_CONTAINER(forecast->icon), gtk_image_new_from_file(WEATHER_DEF_ICON));
 
 		/* set position */
-		gtk_fixed_put(GTK_FIXED(container), w->icon, pos.x, pos.y);
+		gtk_fixed_put(GTK_FIXED(container), forecast->icon, pos.x, pos.y);
 
-		w->text = gtk_label_new(NULL);
+		forecast->display = gtk_label_new(NULL);
 
-		gtk_label_set_label(GTK_LABEL(w->text), WEATHER_DEF_TEXT);
+		gtk_label_set_label(GTK_LABEL(forecast->display), WEATHER_DEF_TEXT);
 
-		gtk_fixed_put(GTK_FIXED(container), w->text, pos.x + 40, pos.y + 10);
+		gtk_fixed_put(GTK_FIXED(container), forecast->display, pos.x + 40, pos.y + 10);
 
-		w->id = idx;
-		w->info = calloc(sizeof *(w->info), 1);
-		w->next = NULL;
+		forecast->next = NULL;
 
-		if(NULL == last)
+		if ( !app.forecast )
 		{
-			weathers = w;
-			last = w;
-		}
-		else
-		{
-			last->next = w;
-			last = w;
-		}
-
-		++idx;
+			last = app.forecast = forecast;
+		} else
+			last = last->next = forecast;
 
 		s = strchr(s, ';');
 
@@ -241,141 +227,54 @@ static void weather_init()
 	gtk_main();
 }
 
-static xmlNode *weather_query_node(xmlNode *root, char *node_name, char *attr_name, unsigned int day)
-{
-	xmlNode *node = NULL;
-
-	for(xmlNode *cur_node = root; cur_node; cur_node = cur_node->next)
-	{
-		if(cur_node->type == XML_ELEMENT_NODE && !xmlStrcmp(cur_node->name, (const xmlChar *)node_name))
-		{
-			/* query node by node name */
-			if(attr_name == NULL)
-			{
-				return cur_node;
-			}
-
-			for(xmlAttr *cur_attr = cur_node->properties; cur_attr;)
-			{
-				if(!xmlStrcmp(cur_attr->name, (const xmlChar *)attr_name))
-				{
-					char *value = (char *)xmlGetProp(cur_node, (const xmlChar *)attr_name);
-
-					if((unsigned int)atoi(value) == day)
-					{
-						return cur_node;
-					}
-				}
-
-				cur_attr = cur_attr->next;
-			}
-		}
-
-		/* whether has child node */
-		node = weather_query_node(cur_node->children, node_name, attr_name, day);
-
-		if(node)
-		{
-			return node;
-		}
-	}
-
-	return NULL;
-}
-
-static struct info *weather_query(struct info *info, unsigned int id, xmlDoc *doc)
-{
-	xmlNode *root, *node = NULL;	
-	
-	root = xmlDocGetRootElement(doc);
-
-	if(root == NULL)
-	{
-		return NULL;
-	}
-
-	if(xmlStrcmp(root->name, (const xmlChar *)"weather"))
-	{
-		return NULL;
-	}
-
-	/* get weather xml node */
-	if(0 == id)
-	{
-		node = weather_query_node(root, "cc", NULL, 0);
-
-		strncpy(info->name, "Today", sizeof info->name);
-	}
-	else
-	{
-		node = weather_query_node(root, "day", "d", id);
-
-		strncpy(info->name, (char *)xmlGetProp(node, (const xmlChar *)"t"), sizeof info->name);
-	}
-
-	/* get temperature */
-	xmlNode *temp = weather_query_node(node, 0 == id ? "tmp" : "low", NULL, 0);
-	info->temperature = atoi((char *)xmlNodeListGetString(doc, temp->xmlChildrenNode, 1));
-
-	/* get temperature icon */
-	xmlNode *icon = weather_query_node(node, "icon", NULL, 0);
-	snprintf(info->icon, sizeof info->icon, "%s.png", xmlNodeListGetString(doc, icon->xmlChildrenNode, 1));
-
-	return info;
-}
-
 static void weather_refresh()
 {
 	GtkWidget *old;
 	GtkWidget *new;
 
-	xmlDoc *doc = weather_load();
-	char format[512] = { 0 };
+	char format[512] = { 0 }, icon[32] = { 0 };
 
-	for(struct weather *last = weathers; last;)
+	weather_load();
+
+	for(struct forecast *last = app.forecast; last;)
 	{
-		/* query weather info by day id */
-		if(NULL == weather_query(last->info, last->id, doc))
-		{
-			continue;
-		}
-
-		printf("ID: %d, DAY: %s, TEMP: %d, ICON: %s\n", last->id, last->info->name, last->info->temperature, last->info->icon);
+		printf("ID: %d, DAY: %s, TEMP: %d, ICON: %s\n", last->low, last->date, last->high, last->day);
 		
+		snprintf(format, sizeof format, WEATHER_FMT_TEXT, color.value, font.value, last->low, last->high, last->day);
+		snprintf(icon, sizeof icon, "%d.png", last->low);
+
 		old = gtk_container_get_children(GTK_CONTAINER(last->icon))->data;
-		new = gtk_image_new_from_file(last->info->icon);
+		new = gtk_image_new_from_file(icon);
 
 		gtk_container_remove(GTK_CONTAINER(last->icon), old);
 		gtk_container_add(GTK_CONTAINER(last->icon), new);
 
-		snprintf(format, sizeof format, WEATHER_FMT_TEXT, last->info->temperature, last->info->name);
 
-		gtk_label_set_markup(GTK_LABEL(last->text), format);
+		gtk_label_set_markup(GTK_LABEL(last->display), format);
 
 		gtk_widget_show(new);
 
 		last = last->next;
 	}
-
-	xmlFreeDoc(doc);
 }
 
-static xmlDoc *weather_load()
+static void weather_load()
 {
-	char url[1024];
+	char url[1024], *ptr, *line = NULL, key[16] = { 0 }, value[32] = { 0 };
+	size_t size;
+
 	FILE *fp;
 	CURL *curl;
-	xmlDoc *doc = NULL;
+
+	struct forecast *walk = app.forecast;
 
 	sprintf(url, WEATHER_API, zipcode.value);
-
-	unlink(WEATHER_XML);
 
 	curl = curl_easy_init();
 	
 	if(curl)
 	{
-		fp = fopen(WEATHER_XML, "w+");
+		fp = tmpfile();
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
@@ -384,12 +283,92 @@ static xmlDoc *weather_load()
 
 		curl_easy_cleanup(curl);
 
-		fclose(fp);
+		fseek( fp, SEEK_SET, 0 );
 
-		doc = xmlReadFile(WEATHER_XML, 0, 0);
+		while ( !feof( fp ) )
+		{
+			if ( getline( &line, &size, fp ) )
+			{
+				ptr = line;
+
+				printf( "Parse line:%s", line );
+
+				/* Get the location info */
+				if ( ptr = strstr( line, "yweather:location" ), ptr && !app.location )
+				{
+					app.location = calloc( 1, sizeof( *(app.location) ) );
+
+					while ( ptr = strstr( ptr, " " ), ptr )
+					{
+						/* Trim the blank */
+						while ( isspace( *ptr++ ) || ( --ptr && 0 ) );
+
+						memset( key, 0, 16 );
+						memset( value, 0, 32 );
+
+						if ( 2 == sscanf( ptr, "%15[^ =\t] = \"%31[^\r\n\"]", key, value ) )
+						{
+							if ( EQUAL( "city", key ) )
+							{
+								strncpy( app.location->city, value, strlen( value ) );
+							} else if ( EQUAL( "region", key ) )
+							{
+								strncpy( app.location->region, value, strlen( value ) );
+							} else if ( EQUAL( "country", key ) )
+							{
+								strncpy( app.location->country, value, strlen( value ) );
+							}
+						}
+					}
+
+				} else if ( ptr = strstr( line, "yweather:forecast" ), ptr && walk )
+				{
+					/* Get the forecast */
+					while ( ptr = strstr( ptr, " " ), ptr )
+					{
+						while ( isspace( *ptr++ ) || ( --ptr && 0 ) );
+
+						if ( 2 == sscanf( ptr, "%15[^ =\t] = \"%31[^\r\n\"]", key, value ) )
+						{
+							printf( "Key:%s, Value:%s, %d\n", key, value, walk == NULL );
+
+							if ( EQUAL( "day", key ) )
+							{
+								strncpy( walk->day, value, strlen( value ) );
+							} else if ( EQUAL( "date", key ) )
+							{
+								strncpy( walk->date, value, strlen( value ) );
+							} else if ( EQUAL( "low", key ) )
+							{
+								walk->low = atoi( value );
+							} else if ( EQUAL( "high", key ) )
+							{
+								walk->high = atoi( value );
+							} else if ( EQUAL( "text", key ) )
+							{
+								strncpy( walk->text, value, strlen( value ) );
+							} else if ( EQUAL( "code", key ) )
+							{
+								walk->code = atoi( value );
+							}
+						}
+					}
+
+					walk = walk->next;
+				}
+
+
+				free( line );
+
+				line = NULL;
+				size = 0;
+			}
+		}
+
+		fclose(fp);
 	}
 
-	return doc;
+	printf( "Parse forecast is Ok!\n" );
 }
 
 static int ui_set_transparent(GtkWidget *widget, GdkScreen *ignore, void *data)
