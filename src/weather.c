@@ -74,17 +74,31 @@ static int ui_do_transparent(GtkWidget *widget, GdkEventExpose *event, void *dat
 
 static size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream);
 
-static struct cfg position 	= { .name = "position", .value = "0, 0" 	};
-static struct cfg width 	= { .name = "width", 	.value = "200" 		};
-static struct cfg height 	= { .name = "height", 	.value = "320" 		};
-static struct cfg color 	= { .name = "color", 	.value = "white" 	};
-static struct cfg font 		= { .name = "font", 	.value = "nu.se 7" };
-static struct cfg zipcode  	= { .name = "zipcode", 	.value = "" 		};
-static struct cfg days 		= { .name = "days", 	.value = "" 		};
+#define CFG_MAP(XX) 					\
+	XX(POSITION, 	"position", 	"0, 0" 		)\
+	XX(WIDTH, 	"width", 	"200" 		)\
+	XX(HEIGHT, 	"height", 	"320" 		)\
+	XX(COLOR, 	"color", 	"white" 	)\
+	XX(FONT, 	"font", 	"nu.se 7" 	)\
+	XX(ZIPCODE, 	"zipcode", 	"" 		)\
+	XX(DAYS, 	"days", 	"" 		)
+
+enum
+{
+	#define XX(KEY, NAME, VALUE) 			CFG_##KEY,
+	CFG_MAP(XX)
+	#undef XX
+};
+
+#define KEY(NAME) 					CFG_##NAME
 
 static struct cfg *rc[] = 
 {
-	&position, &width, &height, &height, &zipcode, &color, &font, &days, NULL
+	#define XX(KEY, NAME, VALUE) 			&( (struct cfg){ .name = NAME, 	.value = VALUE 	} ),
+	CFG_MAP(XX)
+	#undef XX
+
+	NULL
 };
 
 static struct app app;
@@ -166,7 +180,7 @@ static void weather_init()
 	gtk_window_set_keep_below(GTK_WINDOW(window), TRUE);
 
 	/* set window position */
-	mkpos(position.value, &pos);
+	mkpos(rc[KEY(POSITION)]->value, &pos);
 	gtk_widget_set_uposition(window, pos.x, pos.y);
 
 	container = gtk_fixed_new();
@@ -174,7 +188,7 @@ static void weather_init()
 	gtk_container_add(GTK_CONTAINER(window), container);
 
 	/* build the forecast */
-	for(char *s = days.value; *s;)
+	for(char *s = rc[KEY(DAYS)]->value; *s;)
 	{
 		struct forecast *forecast = calloc( 1, sizeof *forecast );
 
@@ -240,7 +254,7 @@ static void weather_refresh()
 	{
 		printf("CODE: %d, DAY: %s, TEMP: %d, ICON: %s\n", last->code, last->date, last->high, last->day);
 		
-		snprintf(format, sizeof format, WEATHER_FMT_TEXT, color.value, font.value, last->low, last->high, "");
+		snprintf(format, sizeof format, WEATHER_FMT_TEXT, rc[KEY(COLOR)]->value, rc[KEY(FONT)]->value, last->low, last->high, "");
 		snprintf(icon, sizeof icon, "%d.png", last->code);
 
 		old = gtk_container_get_children(GTK_CONTAINER(last->icon))->data;
@@ -268,7 +282,7 @@ static void weather_load()
 
 	struct forecast *walk = app.forecast;
 
-	sprintf(url, WEATHER_API, zipcode.value);
+	sprintf(url, WEATHER_API, rc[KEY(ZIPCODE)]->value);
 
 	curl = curl_easy_init();
 	
